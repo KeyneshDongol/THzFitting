@@ -6,12 +6,12 @@
     
     "to_find": {
         "permittivity": false,
-        "plasma_damping": false,
-        "n_k": true
+        "plasma_damping": true,
+        "n_k": false
     },
 
     "input": {
-        "pulse": ["THz_Vac.txt", "THz_Sub.txt"],
+        "pulse": ["THz_Vac.txt", "THz_PtTeSub.txt"],
         "trans_ref": "TR_capping.txt"
     },
 
@@ -34,13 +34,13 @@
             "is_known": true
         },
         {
-            "thickness": 0.5e-3,
-            "eps_data": ["Al2O3.txt", "THz"],
+            "thickness": 6e-9,
+            "eps_data": [3.01,0.45], 
             "is_known": false
         },
         {
-            "thickness": 0,
-            "eps_data": ["air.txt", "eV"], 
+            "thickness": 0.5e-3,
+            "eps_data": ["Al2O3.txt", "THz"],
             "is_known": true
         },
         {
