@@ -82,7 +82,7 @@ def minimize_func(layers, to_find, to_fit, omega, eps0, mu, d, f_in, f_out, tran
 
 
 if __name__ == '__main__':
-    f = open('/Users/yingshuyang/pythonfiles/TransferMatrixMethod/PtTe_data_fits/config.json')
+    f = open('/Users/yingshuyang/pythonfiles/TransferMatrixMethod/A1_nk_Fitting/config.json')
     config = json.load(f)
     to_fit = list(config['to_fit'].values())
     to_find = list(config['to_find'].values()) 
