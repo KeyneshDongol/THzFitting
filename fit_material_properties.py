@@ -8,7 +8,7 @@ import time
 
 from src.Read_material import Material
 from src.TMM import SpecialMatrix
-from src import exp_pulse, exp_tr, fourier, tools#,fitting
+from src import exp_pulse, fourier, tools
 
 
 def E_TMM(layers, to_find, omega, eps0, mu, d, f_in,sub_layer, echoes_removed, unknown):  # returns the theoretically transmitted pulse (in both time and frequency domain)
@@ -67,7 +67,8 @@ def Error_func(layers, to_find, omega, eps0, mu, d, E_air_f, E_exp_f,sub_layer,e
 
 if __name__ == '__main__':
     ### drag in all information defined in config json file
-    f = open('/Users/yingshuyang/pythonfiles/TransferMatrixMethod/A1_THz_material_fitting/config.json')
+    # f = open('/Users/yingshuyang/pythonfiles/TransferMatrixMethod/A1_THz_nk_Fitting/config.json')
+    f = open(Path.cwd()/'config.json')
     config = json.load(f)
     to_find = list(config['to_find'].values()) 
     input_num = list(config['input'].values())
