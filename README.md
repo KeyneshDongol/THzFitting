@@ -1,1 +1,1 @@
-# Notes# 1. The length of the used experimental data files have to be the same.# 2. The config.json file, in the layers sec, the first set represents the position of the substrate, if the echo remove needed, the first set is removed.
+# Notes1. The length of the used experimental data files have to be the same.2. The config.json file, in the layers sec, the second set represents the position of the substrate, if the echo remove needed, the first set is removed.

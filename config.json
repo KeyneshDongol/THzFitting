@@ -1,57 +1,68 @@
 {
-    "to_fit": {
-        "pulse": true,
-        "trans_ref": false
-    },
-    
-    "to_find": {
+
+        "to_find": {
         "permittivity": false,
         "plasma_damping": true,
         "n_k": false
     },
 
     "input": {
-        "pulse": ["THz_Vac.txt", "THz_PtTeSub.txt"],
-        "trans_ref": "TR_capping.txt"
+        "pulse": ["air.txt", "quartz_pt.txt"]
     },
 
     "pulse_res": {
-        "n": 600,
+        "n": 100,
         "tmin": 0,
-        "tmax": 30e-12,
-        "tpos": 0e-12
+        "tmax": 3.3e-11,
+        "tpos": 1e-11
     },
 
-    "freq_range": {
-        "n": 20,
-        "ev_range": [2.0, 2.5]
-    },
+
     
     "layers": [
         {
             "thickness": 0,
-            "eps_data": ["air.txt", "eV"], 
+            "eps_data": ["air.txt", "eV"],
+            "is_substrate": false,
             "is_known": true
         },
         {
-            "thickness": 6e-9,
-            "eps_data": [3.01,0.45], 
+            "thickness": 0.001,
+            "eps_data": ["SiO2.txt", "eV"],
+            "is_substrate": true,
+            "is_known": true
+        },
+        {
+            "thickness": 3e-9,
+            "eps_data": [5.145, 69.2e-3],
+            "is_substrate": false,
             "is_known": false
         },
         {
-            "thickness": 0.5e-3,
-            "eps_data": ["Al2O3.txt", "THz"],
+            "thickness": 0,
+            "eps_data": ["air.txt", "eV"],
+            "is_substrate": false,
             "is_known": true
         },
         {
             "thickness": 0,
             "eps_data": ["air.txt", "eV"],
+            "is_substrate": false,
             "is_known": true
         },
         {
             "thickness": 0,
             "eps_data": ["air.txt", "eV"],
+            "is_substrate": false,
             "is_known": true
         }
-    ]
+    ],
+    
+    "Echoes":
+    {
+    "Removed": true
+    }
+
 }
+
+

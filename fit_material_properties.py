@@ -6,12 +6,12 @@ from functools import partial
 import json
 import time
 
-from src.Material import Material
+from src.Read_material import Material
 from src.TMM import SpecialMatrix
-from src import exp_pulse, exp_tr, fourier, tools
+from src import exp_pulse, exp_tr, fourier, tools#,fitting
 
 
-def sim_pulse(layers, to_find, to_fit, omega, eps0, mu, d, f_in, unknown):
+def E_TMM(layers, to_find, omega, eps0, mu, d, f_in,sub_layer, echoes_removed, unknown):  # returns the theoretically transmitted pulse (in both time and frequency domain)
     epsilon = []
     for l in layers:
         if type(l) == str:  # unknown
@@ -27,86 +27,81 @@ def sim_pulse(layers, to_find, to_fit, omega, eps0, mu, d, f_in, unknown):
 
     '''Transfer matrix'''
     TMM = SpecialMatrix(omega, mu, epsilon, d)
-    T_0s, T_sinf, T_0inf = TMM.transfer_matrix()
+    _, _, T_0inf = TMM.Transfer_Matrix()
+    T_0s  = TMM.Transfer_Matrix_special_0N(sub_layer)
+    T_sinf  = TMM.Transfer_Matrix_special_Ninf(sub_layer)
 
     '''Tranmission & reflection coefficients'''
-    t_0s        = TMM.transmission_coeff(T_0s)
-    t_sinf      = TMM.transmission_coeff(T_sinf)
-    t = TMM.transmission_coeff(T_0inf)
+    t_0s        = TMM.Transmission_coeff(T_0s)
+    t_sinf      = TMM.Transmission_coeff(T_sinf)
+    t           = TMM.Transmission_coeff(T_0inf)
     t_noecho    = np.multiply(t_0s, t_sinf)
-    # r           = TMM.reflection_coeff(T_0inf)
-    r_noecho      = TMM.reflection_coeff(T_0s)
-    # r_sinf      = TMM.reflection_coeff(T_sinf)
-    # r_0s        = TMM.reflection_coeff(T_0s)
 
-    '''Transmitted wave in freq domain'''
-    # f_S_R                 = f_in * t_0s
-    # f_inf_R_echofree      = f_in * t_noecho
-    f_inf_R_echowith = f_in * t
-    # trans_echofree = fourier.ift(f_inf_R_echofree)
-    trans_echowith = fourier.ift(f_inf_R_echowith)
 
-    if to_fit[0] == True:
-        return trans_echowith, f_inf_R_echowith
+
+    '''Remove echo or not'''
+    
+    if echoes_removed[0]==True:
+        f_inf_R      = f_in * t_noecho 
     else:
-        return np.hstack((100*abs(t_noecho)**2, 100*abs(r_noecho)**2))
+        f_inf_R      = f_in*t
+        
+    '''Transmitted wave in freq domain'''
+    trans = fourier.ift(f_inf_R) 
+
+    
+    return trans, f_inf_R
 
 
-def minimize_func(layers, to_find, to_fit, omega, eps0, mu, d, f_in, f_out, transref, unknown):
+
+def Error_func(layers, to_find, omega, eps0, mu, d, E_air_f, E_exp_f,sub_layer,echoes_removed, unknown):
     if to_find[0] == True:
         unknown = unknown[:len(unknown)//2] + 1j*unknown[len(unknown)//2:]
     if to_find[2] == True:
-        unknown = np.array(np.array_split(unknown, 2))
-    if to_fit[0] == True:
-        sim_f_out = sim_pulse(layers, to_find, to_fit, omega, eps0, mu, d, f_in, unknown)[1]
-        return np.sum(np.abs(sim_f_out - f_out))
-    else:
-        sim_transref = sim_pulse(layers, to_find, to_fit, omega, eps0, mu, d, f_in, unknown)
-        return np.sum(np.abs(sim_transref - transref))
+        unknown = np.array(np.array_split(unknown, 2))        
+    E_theo_f = E_TMM(layers, to_find, omega, eps0, mu, d, E_air_f, sub_layer,echoes_removed,unknown)[1]
+    return np.sum(np.abs(E_theo_f - E_exp_f))
+
+
 
 
 if __name__ == '__main__':
-    f = open('/Users/yingshuyang/pythonfiles/TransferMatrixMethod/Amalini/config.json')
+    ### drag in all information defined in config json file
+    f = open('/Users/yingshuyang/pythonfiles/TransferMatrixMethod/A1_THz_material_fitting/config.json')
     config = json.load(f)
-    to_fit = list(config['to_fit'].values())
     to_find = list(config['to_find'].values()) 
-    input = list(config['input'].values())
+    input_num = list(config['input'].values())
     mat_data = config['layers']
+    echoes_removed =  list(config['Echoes'].values())
 
-    '''Material'''
+
+
+    '''Material and Geometry of the sample'''
     mu = 12.57e-7
     eps0 = 8.85e-12
-    d = [i['thickness'] for i in mat_data]
-    eps_data = [i['eps_data'] for i in mat_data]
-    is_known = [i['is_known'] for i in mat_data]
-
+    d = [i['thickness'] for i in mat_data]       #list
+    eps_data = [i['eps_data'] for i in mat_data] #list 
+    is_known = [i['is_known'] for i in mat_data] #list
+    is_substrate = [i['is_substrate'] for i in mat_data] #list
+    sub_layer = np.where(is_substrate)[0][0]
+    
     '''Experimental data'''
-    if to_fit[0] == True:
-        pulse_res = config['pulse_res']
-        n, tmin, tmax, tpos = pulse_res.values()
-        pulse_path = input[0]
-        exp_in_pulse = Path.cwd()/'experimental_data'/pulse_path[0]
-        exp_out_pulse = Path.cwd()/'experimental_data'/pulse_path[1]
-        t_grid, e_in, e_out = exp_pulse.fitted_pulse(exp_in_pulse, exp_out_pulse, tmin, tmax, tpos, d, n)
-        omega, f_in = fourier.ft(t_grid, e_in)
-        f_out = fourier.ft(t_grid, e_out)[1]
-        transref = 1
-    else:
-        freq_range = config['freq_range']
-        n, ev_range = freq_range.values()
-        ev = np.linspace(ev_range[0], ev_range[1], n)
-        omega = ev*2.42e14*6.28
-        f_in = 1
-        f_out = 1
-        tr_path = input[1]
-        trans, ref = exp_tr.read_tr(tr_path, omega)
-        transref = np.hstack((trans, ref))
+    pulse_res = config['pulse_res']  
+    n, tmin, tmax, tpos = pulse_res.values()
+    pulse_path = input_num[0]
+    exp_in_pulse = Path.cwd()/'experimental_data'/pulse_path[0]  # current working directory
+    exp_out_pulse = Path.cwd()/'experimental_data'/pulse_path[1]
+    t_grid, E_air_in, E_sample_out = exp_pulse.fitted_pulse(exp_in_pulse, exp_out_pulse, tmin, tmax, tpos, d, n) # data reading (propagated through air)
+    omega, E_air_f = fourier.ft(t_grid, E_air_in)
+    E_exp_f = fourier.ft(t_grid, E_sample_out)[1]
+    # transref = 1
 
-    '''Permittivity'''
+
+    '''Inputing the permittivities'''
     layers = []
     for j, k in zip(eps_data, is_known):
         if k == True:     # if known, find eps
-            if type(j[0]) == str:
+            if type(j[0]) == str: ##
                 layers.append(Material(omega).known_nk(j[0], j[1])*eps0)
             else:
                 drude = Material(omega).drude(j[0], j[1]);     drude = 1*drude;  drude[0] = drude[1]
@@ -124,34 +119,30 @@ if __name__ == '__main__':
             if to_find[2] == True:     # n and k
                 unknown = Material(omega).read_nk(j[0], j[1])
     
-    # for transmission & reflection
-    # unknown = (np.real(unknown)+1.5) - 1j*(np.imag(unknown)+2e-5)
+    
+    '''Theoretical calculated transmitted pulse '''
+    E_Theory = partial(E_TMM, layers, to_find, omega, eps0, mu, d, E_air_f,sub_layer,echoes_removed)    
+    E_theo_t, E_theo_f = E_Theory(unknown)
 
-    # #-----------------------------------------------------------------#
-    min_sim_pulse = partial(sim_pulse, layers, to_find, to_fit, omega, eps0, mu, d, f_in)
 
-    if to_fit[0] == True:
-        sim_e_out, sim_f_out = min_sim_pulse(unknown)
-    else: 
-        sim_transref = min_sim_pulse(unknown)
-        sim_trans = sim_transref[:len(sim_transref)//2]; sim_ref = sim_transref[len(sim_transref)//2:]
-
-    #-----------------------------------------------------------------#
-    if to_find[0] == True:       # perm
+    '''splitting the material properties into real and imaginary parts'''
+    if to_find[0] == True:       # permittivity
         new_unknown = np.hstack((np.real(unknown), np.imag(unknown))) 
     if to_find[1] == True:       #drude
         new_unknown = unknown
     if to_find[2] == True:       # n and k
         new_unknown = np.hstack((unknown[0], unknown[1]))
 
-    min_func = partial(minimize_func, layers, to_find, to_fit, omega, eps0, mu, d, f_in, f_out, transref)
+
+    '''Doing the fitting '''
+    min_func = partial(Error_func, layers, to_find, omega, eps0, mu, d, E_air_f, E_exp_f,sub_layer,echoes_removed)
+        
     if to_find[1] == True:
-        bounds = Bounds(unknown*0.5, unknown*1.5)
+        bounds = Bounds(unknown*0.5, unknown*0.5)
     else:
         bounds = None
     start = time.time()
-    # res = minimize(min_func, new_unknown, method='L-BFGS-B', bounds=bounds, options= {'disp' : True, 'adaptive': True, 'maxiter': 100000, 'maxfev': 100000})
-    res = minimize(min_func, new_unknown, method='L-BFGS-B')    #L-BFGS-B
+    res = minimize(min_func, new_unknown, method='Powell', bounds=bounds, options= {'disp' : True, 'adaptive': True, 'maxiter': 10000000, 'maxfev': 10000000})
     end = time.time()
 
     print(f'Elapsed time: {end - start}s')
@@ -159,27 +150,10 @@ if __name__ == '__main__':
     if to_find[0] == True:    
         result = res['x'][:len(new_unknown)//2] + 1j*res['x'][len(new_unknown)//2:]
         print(f'After: {min_func(np.hstack((np.real(result), np.imag(result))))}')
-        
-        ##==============yingshu testing  permittivtiy============         
-        # drudePt =Material(omega).drude(5.145, 69.2e-3)
-        # plt.figure('Permittivity')        
-        # plt.plot(omega,drudePt.real,label = 'input real')
-        # plt.plot(omega,drudePt.imag,label = 'input imag')   
-        
-        
-        # permi = Material(omega).known_nk("SiO2.txt", "eV")      
-        #plt.figure('Permittivity')     
-        #plt.plot(omega,unknown.real,label = 'input real per')
-        #plt.plot(omega,unknown.imag,label = 'input imag per')  
-        
-        #plt.plot(omega,result.real,label = 'output real per')
-        #plt.plot(omega,result.imag,label = 'output imag per')
-        #plt.legend()
-        ##==========================================        
+              
     if to_find[1] == True:
         result = res['x']
-        print(f'After: {min_func(result)}')
-        
+        print(f'After: {min_func(result)}')        
         ##==============yingshu testing   Plasma damping============         
         drudePt = Material(omega).drude(5.145, 69.2e-3)
         drudePt_fit = Material(omega).drude(result[0], result[1])
@@ -204,70 +178,36 @@ if __name__ == '__main__':
     ##========================================== 
     print(f'Result: {result}')
     
-    if to_fit[0] == True:
-        new_e_out, new_f_out = min_sim_pulse(result)
+    E_theo_fit_t, E_theo_fit_f = E_Theory(result)
 
-        '''Minimization plot - time'''
-        fig, (ax1, ax2) = plt.subplots(1, 2,figsize=(8, 4))
-        fig.suptitle('Minimized - time domain')
-        ax1.set_title('Before')
-        ax2.set_title('After')
-        ax1.plot(t_grid, e_in, alpha=0.4)
-        ax1.plot(t_grid, e_out)
-        ax1.plot(t_grid, sim_e_out)
-        ax2.plot(t_grid, e_in, alpha=0.4)
-        ax2.plot(t_grid, e_out, label='exp')
-        ax2.plot(t_grid, new_e_out, label='sim')
-        ax2.legend()
-        plt.show()
+    '''Minimization plot - time'''
+    fig, (ax1, ax2) = plt.subplots(1, 2,figsize=(8, 4))
+    fig.suptitle('Minimized - time domain')
+    ax1.set_title('Before')
+    ax2.set_title('After')
+    ax1.plot(t_grid, E_air_in, alpha=0.4,label = 'E_air_in')
+    ax1.plot(t_grid, E_sample_out,label = 'E_sample_out')
+    ax1.plot(t_grid, E_theo_t,label = 'E_theory_time')
+    ax1.legend()
+    ax2.plot(t_grid, E_air_in, alpha=0.4,label = 'E_air_in')
+    ax2.plot(t_grid, E_sample_out, label='E_sample_out')
+    ax2.plot(t_grid, E_theo_fit_t, label='Best fit E')
+    ax2.legend()
+    plt.show()
 
-        '''Minimization plot - freq'''
-        fig, (ax1, ax2) = plt.subplots(1, 2,figsize=(8, 4))
-        fig.suptitle('Minimized - freq')
-        ax1.set_title('Before')
-        ax2.set_title('After')
-        ax1.plot(omega, np.abs(f_out))
-        ax1.plot(omega, np.abs(sim_f_out))
-        ax2.plot(omega, np.abs(f_out), label='exp')
-        ax2.plot(omega, np.abs(new_f_out), label='sim')
-        ax2.legend()
-        plt.show()
-    
-    else:
-        new_transref = min_sim_pulse(result)
+    '''Minimization plot - freq'''
+    fig, (ax1, ax2) = plt.subplots(1, 2,figsize=(8, 4))
+    fig.suptitle('Minimized - freq')
+    ax1.set_title('Before')
+    ax2.set_title('After')
+    ax1.plot(omega, np.abs(E_exp_f))
+    ax1.plot(omega, np.abs(E_theo_f))
+    ax2.plot(omega, np.abs(E_exp_f), label='exp')
+    ax2.plot(omega, np.abs(E_theo_fit_f), label='sim')
+    ax2.legend()
+    plt.show()
 
-        '''Minimization plot - trans'''
-        fig, (ax1, ax2) = plt.subplots(1, 2)
-        fig.suptitle('Minimized - trans')
-        ax1.set_title('Before')
-        ax2.set_title('After')
-        ax1.plot(ev, trans)
-        ax1.plot(ev, sim_trans)
-        # ax1.set_ylim(0, 100)
-        ax2.plot(ev, trans, label='exp')
-        ax2.plot(ev, new_transref[:len(new_transref)//2], label='sim')
-        # ax2.set_ylim(0, 100)
-        ax2.legend()
-        plt.show()
-
-        '''Minimization plot - ref'''
-        fig, (ax1, ax2) = plt.subplots(1, 2)
-        fig.suptitle('Minimized - ref')
-        ax1.set_title('Before')
-        ax2.set_title('After')
-        ax1.plot(ev, ref)
-        ax1.plot(ev, sim_ref)
-        # ax1.set_ylim(0, 100)
-        ax2.plot(ev, ref, label='exp')
-        ax2.plot(ev, new_transref[len(new_transref)//2:], label='sim')
-        # ax2.set_ylim(0, 100)
-        ax2.legend()
-        plt.show()
-
-
-
-
-
+   
 
 
 

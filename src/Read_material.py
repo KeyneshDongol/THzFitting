@@ -3,7 +3,7 @@ from pathlib import Path
 from scipy.interpolate import interp1d
 
 
-class Material:
+class Material(object):
     def __init__(self, omega):
         self.omega = omega
 
