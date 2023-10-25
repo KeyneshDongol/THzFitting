@@ -10,7 +10,7 @@ from Functions.Read_material import Material
 from Functions.TMM import SpecialMatrix
 from Functions import exp_pulse, fourier, tools
 
-
+from scipy.optimize import minimize, LinearConstraint
 
 # returns the theoretically transmitted pulse (in both time and frequency domain)
 def E_TMM(layers, to_find, omega, eps0, mu, d, f_in,sub_layer, echoes_removed, unknown):  
@@ -51,16 +51,30 @@ def E_TMM(layers, to_find, omega, eps0, mu, d, f_in,sub_layer, echoes_removed, u
 
 
 
-def Error_func(layers, to_find, omega, eps0, mu, d, E_air_f, E_exp_f,sub_layer,echoes_removed, unknown):
+# def Error_func(layers, to_find, omega, eps0, mu, d, E_air_f, E_exp_f,sub_layer,echoes_removed, unknown):
+#     if to_find[0] == True:
+#         unknown = unknown[:len(unknown)//2] + 1j*unknown[len(unknown)//2:]
+#     if to_find[2] == True:
+#         unknown = np.array(np.array_split(unknown, 2))    
+#     E_theo_f = E_TMM(layers, to_find, omega, eps0, mu, d, E_air_f, sub_layer,echoes_removed,unknown)[1]    
+#     return np.sum(np.abs(E_theo_f - E_exp_f))
+
+def Error_func(layers, to_find, omega, eps0, mu, d, E_air_f, E_exp_f, sub_layer, echoes_removed, unknown):
     if to_find[0] == True:
         unknown = unknown[:len(unknown)//2] + 1j*unknown[len(unknown)//2:]
     if to_find[2] == True:
-        unknown = np.array(np.array_split(unknown, 2))        
-    E_theo_f = E_TMM(layers, to_find, omega, eps0, mu, d, E_air_f, sub_layer,echoes_removed,unknown)[1]
-    return np.sum(np.abs(E_theo_f - E_exp_f))
+        unknown = np.array(np.array_split(unknown, 2))
 
+    # Additional penalty term to enforce positive unknown[1]
+    penalty = 0.0
+    if to_find[2] == True:
+        negative_k = np.where(unknown[1] < 0)[0]
+        if len(negative_k) > 0:
+            penalty = np.sum(np.exp(-unknown[1][negative_k]))
 
-
+    E_theo_f = E_TMM(layers, to_find, omega, eps0, mu, d, E_air_f, sub_layer, echoes_removed, unknown)[1]
+    
+    return np.sum(np.abs(E_theo_f - E_exp_f)) + penalty
 
 if __name__ == '__main__':
     
@@ -127,9 +141,11 @@ if __name__ == '__main__':
     if to_find[2] == True:       # n and k
         new_unknown = np.hstack((unknown[0], unknown[1]))
 
-
+       
     '''Doing the fitting '''
     min_func = partial(Error_func, layers, to_find, omega, eps0, mu, d, E_air_f, E_exp_f,sub_layer,echoes_removed)
+
+
         
     if to_find[1] == True:
         bounds = Bounds(unknown*0.5, unknown*0.5)
@@ -137,6 +153,9 @@ if __name__ == '__main__':
         bounds = None
     start = time.time()
     res = minimize(min_func, new_unknown, method='Powell', bounds=bounds, options= {'disp' : True, 'adaptive': True, 'maxiter': 10000000, 'maxfev': 10000000})
+
+
+
     end = time.time()
 
     print(f'Elapsed time: {end - start}s')

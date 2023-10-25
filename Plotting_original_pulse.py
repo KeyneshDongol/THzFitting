@@ -40,7 +40,20 @@ t_grid, E_air_in= exp_pulse.read_pulse(exp_in_pulse)
 _, E_sample_out= exp_pulse.read_pulse(exp_out_pulse) 
 
 
-plt.figure('test')
-plt.plot(t_grid,E_air_in)
-plt.plot(t_grid,E_sample_out)
+# plt.figure('test')
+# plt.plot(t_grid,E_air_in)
+# plt.plot(t_grid,E_sample_out)
 
+
+
+# def custom_function(x):
+#     y = np.where(x > 0, 0, np.exp(-x))
+#     return y
+
+# x = np.array([-1,2,3,-0.2,1,-3,-4,-0.3,-0.5,1,2,4,5])
+
+
+# y = custom_function(x)
+
+
+# plt.plot(x,y)
