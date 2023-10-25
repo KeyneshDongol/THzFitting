@@ -11,10 +11,12 @@ from Functions.TMM import SpecialMatrix
 from Functions import exp_pulse, fourier, tools
 
 
-def E_TMM(layers, to_find, omega, eps0, mu, d, f_in,sub_layer, echoes_removed, unknown):  # returns the theoretically transmitted pulse (in both time and frequency domain)
+
+# returns the theoretically transmitted pulse (in both time and frequency domain)
+def E_TMM(layers, to_find, omega, eps0, mu, d, f_in,sub_layer, echoes_removed, unknown):  
     epsilon = []
     for l in layers:
-        if type(l) == str:  # unknown
+        if type(l) == str:  
             if to_find[0] == True:                                        # permittivity
                 epsilon.append(unknown*eps0)
             if to_find[1] == True:                                        # plasma and damping
@@ -37,19 +39,14 @@ def E_TMM(layers, to_find, omega, eps0, mu, d, f_in,sub_layer, echoes_removed, u
     t           = TMM.Transmission_coeff(T_0inf)
     t_noecho    = np.multiply(t_0s, t_sinf)
 
-
-
-    '''Remove echo or not'''
-    
+    '''Remove echo or not'''    
     if echoes_removed[0]==True:
         f_inf_R      = f_in * t_noecho 
     else:
         f_inf_R      = f_in*t
         
     '''Transmitted wave in freq domain'''
-    trans = fourier.ift(f_inf_R) 
-
-    
+    trans = fourier.ift(f_inf_R)    
     return trans, f_inf_R
 
 
@@ -66,16 +63,14 @@ def Error_func(layers, to_find, omega, eps0, mu, d, E_air_f, E_exp_f,sub_layer,e
 
 
 if __name__ == '__main__':
-    ### drag in all information defined in config json file
-    # f = open('/Users/yingshuyang/pythonfiles/TransferMatrixMethod/A1_THz_nk_Fitting/config.json')
+    
+    '''inputs'''
     f = open(Path.cwd()/'inputs.json')
     config = json.load(f)
     to_find = list(config['to_find'].values()) 
     input_num = list(config['input'].values())
     mat_data = config['layers']
     echoes_removed =  list(config['Echoes'].values())
-
-
 
     '''Material and Geometry of the sample'''
     mu = 12.57e-7
@@ -91,12 +86,10 @@ if __name__ == '__main__':
     n, tmin, tmax, tpos = pulse_res.values()
     pulse_path = input_num[0]
     exp_in_pulse = Path.cwd()/'experimental_data'/pulse_path[0]  # current working directory
-    exp_out_pulse = Path.cwd()/'experimental_data'/pulse_path[1]
+    exp_out_pulse = Path.cwd()/'experimental_data'/pulse_path[1] # current working directory
     t_grid, E_air_in, E_sample_out = exp_pulse.fitted_pulse(exp_in_pulse, exp_out_pulse, tmin, tmax, tpos, d, n) # data reading (propagated through air)
     omega, E_air_f = fourier.ft(t_grid, E_air_in)
     E_exp_f = fourier.ft(t_grid, E_sample_out)[1]
-    # transref = 1
-
 
     '''Inputing the permittivities'''
     layers = []
@@ -109,7 +102,7 @@ if __name__ == '__main__':
                 layers.append(drude*eps0)
         else:
             layers.append('unknown')
-            if to_find[0] == True:     # permittivities
+            if to_find[0] == True:     # permittivity(real and imaginary)
                 if type(j[0]) == str:
                     unknown = Material(omega).known_nk(j[0], j[1])
                 else:
@@ -127,7 +120,7 @@ if __name__ == '__main__':
 
 
     '''splitting the material properties into real and imaginary parts'''
-    if to_find[0] == True:       # permittivity
+    if to_find[0] == True:       # permittivity(real and imaginary)
         new_unknown = np.hstack((np.real(unknown), np.imag(unknown))) 
     if to_find[1] == True:       #drude
         new_unknown = unknown
@@ -147,15 +140,15 @@ if __name__ == '__main__':
     end = time.time()
 
     print(f'Elapsed time: {end - start}s')
-    print(f'Before: {min_func(new_unknown)}')
+    print(f'Before: error function =  {min_func(new_unknown)}')
     if to_find[0] == True:    
         result = res['x'][:len(new_unknown)//2] + 1j*res['x'][len(new_unknown)//2:]
         print(f'After: {min_func(np.hstack((np.real(result), np.imag(result))))}')
               
     if to_find[1] == True:
         result = res['x']
-        print(f'After: {min_func(result)}')        
-        ##==============yingshu testing   Plasma damping============         
+        print(f'After: error function =  {min_func(result)}')        
+        ##==============yplotting permittivity ============         
         drudePt = Material(omega).drude(5.145, 69.2e-3)
         drudePt_fit = Material(omega).drude(result[0], result[1])
         plt.figure('Plasma_damping')        
@@ -164,11 +157,10 @@ if __name__ == '__main__':
         plt.plot(omega,drudePt_fit.real,label = 'output real drude')
         plt.plot(omega,drudePt_fit.imag,label = 'output imag drude')
         plt.legend()
-        ##==========================================     
     if to_find[2] == True:
         result = np.array(np.array_split(res['x'], 2))
         print(f'After: {min_func(np.hstack((result[0], result[1])))}')
-        ##==============yingshu testing   n and k============ 
+        ##============== plotting n and k============ 
         n_k = Material(omega).read_nk("SiO2.txt", "eV")      
         plt.figure('n_k')     
         plt.plot(omega,n_k[0],label = 'input n')
@@ -176,7 +168,6 @@ if __name__ == '__main__':
         plt.plot(omega,result[0].real,label = 'output n')
         plt.plot(omega,result[1].real,label = 'output k')
         plt.legend()
-    ##========================================== 
     print(f'Result: {result}')
     
     E_theo_fit_t, E_theo_fit_f = E_Theory(result)
