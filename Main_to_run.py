@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 from functools import partial
 import json
 import time
+from scipy.signal import find_peaks
+from scipy.interpolate import interp1d
 
 from Functions.Read_material import Material
 from Functions.TMM import SpecialMatrix
@@ -50,7 +52,7 @@ def E_TMM(layers, to_find, omega, eps0, mu, d, f_in,sub_layer, echoes_removed, u
     return trans, f_inf_R
 
 
-
+''' error function without penalty term'''
 # def Error_func(layers, to_find, omega, eps0, mu, d, E_air_f, E_exp_f,sub_layer,echoes_removed, unknown):
 #     if to_find[0] == True:
 #         unknown = unknown[:len(unknown)//2] + 1j*unknown[len(unknown)//2:]
@@ -59,6 +61,8 @@ def E_TMM(layers, to_find, omega, eps0, mu, d, f_in,sub_layer, echoes_removed, u
 #     E_theo_f = E_TMM(layers, to_find, omega, eps0, mu, d, E_air_f, sub_layer,echoes_removed,unknown)[1]    
 #     return np.sum(np.abs(E_theo_f - E_exp_f))
 
+
+''' error function with penalty term'''
 def Error_func(layers, to_find, omega, eps0, mu, d, E_air_f, E_exp_f, sub_layer, echoes_removed, unknown):
     if to_find[0] == True:
         unknown = unknown[:len(unknown)//2] + 1j*unknown[len(unknown)//2:]
@@ -75,6 +79,18 @@ def Error_func(layers, to_find, omega, eps0, mu, d, E_air_f, E_exp_f, sub_layer,
     E_theo_f = E_TMM(layers, to_find, omega, eps0, mu, d, E_air_f, sub_layer, echoes_removed, unknown)[1]
     
     return np.sum(np.abs(E_theo_f - E_exp_f)) + penalty
+
+
+'''result smoothing'''
+def moving_average(data, window_size):
+    # Pad the data at the beginning and end to avoid edge effects
+    padded_data = np.pad(data, (window_size // 2, window_size // 2), mode='edge')
+    
+    # Apply the moving average filter
+    smoothed_data = np.convolve(padded_data, np.ones(window_size)/window_size, mode='valid')
+    
+    return smoothed_data
+
 
 if __name__ == '__main__':
     
@@ -144,19 +160,19 @@ if __name__ == '__main__':
        
     '''Doing the fitting '''
     min_func = partial(Error_func, layers, to_find, omega, eps0, mu, d, E_air_f, E_exp_f,sub_layer,echoes_removed)
-
-
         
     if to_find[1] == True:
-        bounds = Bounds(unknown*0.5, unknown*0.5)
+        bounds = Bounds(unknown*0.4, unknown*0.4)
     else:
         bounds = None
     start = time.time()
     res = minimize(min_func, new_unknown, method='Powell', bounds=bounds, options= {'disp' : True, 'adaptive': True, 'maxiter': 10000000, 'maxfev': 10000000})
 
-
-
     end = time.time()
+    
+
+    
+
 
     print(f'Elapsed time: {end - start}s')
     print(f'Before: error function =  {min_func(new_unknown)}')
@@ -178,6 +194,35 @@ if __name__ == '__main__':
         plt.legend()
     if to_find[2] == True:
         result = np.array(np.array_split(res['x'], 2))
+        
+        # Set the window size for the moving average filter (adjust as needed)
+        window_size = 9
+        
+        # Set a threshold for peak prominence (adjust as needed)
+        prominence_threshold = 6.0
+        
+        # Find prominent peaks using the threshold
+        peaks, _ = find_peaks(result[0], prominence=prominence_threshold)
+        
+        # Remove the prominent peaks
+        result[0][peaks] = 2
+        
+        # Apply moving average smoothing to the modified data
+        smoothed_data = moving_average(result[0], window_size)
+        
+        # Generate indices for the smoothed data
+        indices = np.arange(len(smoothed_data))
+        
+        # Create an interpolation function (cubic spline interpolation)
+        interp_func = interp1d(indices, smoothed_data, kind='cubic')
+        
+        # Create a finer grid of indices for the interpolated data
+        # fine_indices = np.linspace(0, len(smoothed_data) - 1, 10 * (len(smoothed_data) - 1))
+        fine_indices = np.linspace(0, omega[-1],500)
+        
+        # Interpolate the smoothed data on the finer grid
+        interpolated_data = interp_func(fine_indices)
+
         print(f'After: {min_func(np.hstack((result[0], result[1])))}')
         ##============== plotting n and k============ 
         n_k = Material(omega).read_nk("SiO2.txt", "eV")      
@@ -185,7 +230,9 @@ if __name__ == '__main__':
         plt.plot(omega,n_k[0],label = 'input n')
         plt.plot(omega,n_k[1],label = 'input k')     
         plt.plot(omega,result[0].real,label = 'output n')
-        plt.plot(omega,result[1].real,label = 'output k')
+        plt.plot(fine_indices,smoothed_data.real,label = 'output n smoothed')
+        
+        # plt.plot(omega,result[1].real,label = 'output k')
         plt.legend()
     print(f'Result: {result}')
     
@@ -219,7 +266,6 @@ if __name__ == '__main__':
     plt.show()
 
    
-
 
 
 
