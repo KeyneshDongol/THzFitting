@@ -215,7 +215,7 @@ if __name__ == '__main__':
     else:
         bounds = None
     start = time.time()
-    res = minimize(min_func, new_unknown, method='Powell', bounds=bounds, options= {'disp' : True, 'adaptive': True, 'maxiter': 1000000, 'maxfev': 1000000})
+    res = minimize(min_func, new_unknown, method='Powell', bounds=bounds, options= {'disp' : True, 'adaptive': True, 'maxiter': 100000, 'maxfev': 100000})
 
     end = time.time()
     
@@ -226,10 +226,51 @@ if __name__ == '__main__':
 
     print(f'Elapsed time: {end - start}s')
     print(f'Before: error function =  {min_func(new_unknown)}')
+    
+    ## Fitting  permittivity
     if to_find[0] == True:    
         result = res['x'][:len(new_unknown)//2] + 1j*res['x'][len(new_unknown)//2:]
+        per_real = result.real
+        per_imag = result.imag
         print(f'After: {min_func(np.hstack((np.real(result), np.imag(result))))}')
-              
+        drudePt = Material(omega).drude(5.145, 69.2e-3)
+      # Define global style settings
+        fontsize = 5
+        title_fontsize = 6
+        linewidth = 1       
+        
+        plt.figure('Plasma_damping', figsize=(8.6/2.54, 7/2.54), dpi=200)
+        gs = GridSpec(2, 1, height_ratios=[1, 1])  # height ratios for subplots
+        
+        # Subplot 1: Real data
+        plt.subplot(gs[0])
+        plt.plot(freq, drudePt.real, linewidth=linewidth, label='$\epsilon$ real input', color='tab:green')
+        plt.plot(freq, per_real, linewidth=linewidth, label='$\epsilon$ real fit', color='brown')
+        plt.xlabel('Freq. (THz)', fontsize=fontsize)
+        plt.ylabel('$\epsilon$ Real', fontsize=fontsize)
+        plt.legend(fontsize=fontsize)
+        plt.xticks(fontsize=fontsize)
+        plt.yticks(fontsize=fontsize)
+        plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+        plt.gca().yaxis.get_offset_text().set_size(fontsize)
+
+
+        # Subplot 2: Imaginary data
+        plt.subplot(gs[1])
+        plt.plot(freq, drudePt.imag, linewidth=linewidth, label='$\epsilon$ imag input', color='tab:green')
+        plt.plot(freq, per_imag, linewidth=linewidth, label='$\epsilon$ imag fit', color='brown')
+        plt.xlabel('Freq. (THz)', fontsize=fontsize)
+        plt.ylabel('$\epsilon$ Imaginary', fontsize=fontsize)
+        plt.legend(fontsize=fontsize)
+        plt.xticks(fontsize=fontsize)
+        plt.yticks(fontsize=fontsize)
+        plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+        plt.gca().yaxis.get_offset_text().set_size(fontsize)        
+
+        plt.tight_layout()
+        plt.show()
+
+    ## Fitting  plasma and damping frequency        
     if to_find[1] == True:
         result = res['x']
         print(f'After: error function =  {min_func(result)}')        
@@ -282,7 +323,7 @@ if __name__ == '__main__':
 
 
 
-
+        ##==============PLOTTING RESULTS ============ 
         
         E_theo_fit_t, E_theo_fit_f = E_Theory(result)
         
@@ -350,7 +391,10 @@ if __name__ == '__main__':
         plt.yticks(fontsize=fontsize)
         plt.xlim(0,20)
         plt.tight_layout()
-        
+
+
+
+    ## Fitting  plasma and damping frequency         
     if to_find[2] == True:
         result = np.array(np.array_split(res['x'], 2))         
         fine_x,smoothed_data1,smoothed_data2,interpolated_data1,interpolated_data2,results = process_data(res, omega, window_size=31, prominence_threshold1=5,prominence_threshold2=0.5)
@@ -401,6 +445,8 @@ if __name__ == '__main__':
         plt.show()
         
         plt.tight_layout()
+        
+        ##==============PLOTTING RESULTS ============ 
         
         E_theo_fit_t, E_theo_fit_f = E_Theory(result)
         E_theo_t_test, E_theo_f_test =  E_Theory(inter_new)
@@ -470,7 +516,7 @@ if __name__ == '__main__':
         plt.xlim(0,20)
         plt.tight_layout()
         
-    print(f'Result: {result}')
+        print(f'Result: {result}')
     
 
 

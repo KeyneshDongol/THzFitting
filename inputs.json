@@ -1,8 +1,8 @@
 {
 
         "to_find": {
-        "permittivity": true,
-        "plasma_damping": false,
+        "permittivity": false,
+        "plasma_damping": true,
         "n_k": false
     },
 
