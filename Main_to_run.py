@@ -8,7 +8,7 @@ import time
 from scipy.signal import find_peaks
 from scipy.interpolate import interp1d
 from math import pi
-
+from matplotlib.gridspec import GridSpec
 from Functions.Read_material import Material
 from Functions.TMM import SpecialMatrix
 from Functions import exp_pulse, fourier, tools
@@ -211,7 +211,7 @@ if __name__ == '__main__':
     min_func = partial(Error_func, layers, to_find, omega, eps0, mu, d, E_air_f, E_exp_f,sub_layer,echoes_removed)
         
     if to_find[1] == True:
-        bounds = Bounds(unknown*0.4, unknown*0.4)
+        bounds = Bounds(unknown*0.65, unknown*0.65)
     else:
         bounds = None
     start = time.time()
@@ -236,12 +236,121 @@ if __name__ == '__main__':
         ##==============yplotting permittivity ============         
         drudePt = Material(omega).drude(5.145, 69.2e-3)
         drudePt_fit = Material(omega).drude(result[0], result[1])
-        plt.figure('Plasma_damping')        
-        plt.plot(freq,drudePt.real,label = 'input real drude')
-        plt.plot(freq,drudePt.imag,label = 'input imag drude')        
-        plt.plot(freq,drudePt_fit.real,label = 'output real drude')
-        plt.plot(freq,drudePt_fit.imag,label = 'output imag drude')
-        plt.legend()
+     # Define global style settings
+        fontsize = 5
+        title_fontsize = 6
+        linewidth = 1
+        
+        # Create figure and specify grid specs
+        plt.figure('Plasma_damping', figsize=(8.6/2.54, 7/2.54), dpi=200)
+        gs = GridSpec(3, 1, height_ratios=[1, 1, 0.1])  # height ratios for subplots
+        
+        # Subplot 1: Real data
+        plt.subplot(gs[0])
+        plt.plot(freq, drudePt.real, linewidth=linewidth, label='$\epsilon$ real input', color='tab:green')
+        plt.plot(freq, drudePt_fit.real, linewidth=linewidth, label='$\epsilon$ real fit', color='brown')
+        plt.xlabel('Freq. (THz)', fontsize=fontsize)
+        plt.ylabel('$\epsilon$ Real', fontsize=fontsize)
+        plt.legend(fontsize=fontsize)
+        plt.xticks(fontsize=fontsize)
+        plt.yticks(fontsize=fontsize)
+        plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+        plt.gca().yaxis.get_offset_text().set_size(fontsize)
+        
+        # Subplot 2: Imaginary data
+        plt.subplot(gs[1])
+        plt.plot(freq, drudePt.imag, linewidth=linewidth, label='$\epsilon$ imag input', color='tab:green')
+        plt.plot(freq, drudePt_fit.imag, linewidth=linewidth, label='$\epsilon$ imag fit', color='brown')
+        plt.xlabel('Freq. (THz)', fontsize=fontsize)
+        plt.ylabel('$\epsilon$ Imaginary', fontsize=fontsize)
+        plt.legend(fontsize=fontsize)
+        plt.xticks(fontsize=fontsize)
+        plt.yticks(fontsize=fontsize)
+        plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+        plt.gca().yaxis.get_offset_text().set_size(fontsize)
+        
+        # Subplot 3: Display result
+        plt.subplot(gs[2])
+        plt.axis('off')
+        result_text1 = f"Plasma frequency =  {result[0]} ev"
+        result_text2 = f"Damping frequency =  {result[1]} ev"
+        plt.text(0.2, 1.2, result_text1, fontsize=fontsize, ha='center', va='center')
+        plt.text(0.2, 0, result_text2, fontsize=fontsize, ha='center', va='center')
+        
+        plt.tight_layout()
+        plt.show()
+
+
+
+
+        
+        E_theo_fit_t, E_theo_fit_f = E_Theory(result)
+        
+                        # Define global style settings
+        fontsize = 5
+        title_fontsize = 6
+        linewidth = 1
+        linewidth2 = 2
+        # Section 1: Minimization plot - time
+        plt.figure('Minimization Plot - Time', figsize=(8.6/2.54, 5/2.54), dpi=200)
+        
+        # Subplot 1
+        plt.subplot(121)
+        plt.title('Before', fontsize=title_fontsize)
+        plt.plot(time, E_air_in, linewidth=linewidth, label='E_air_in', color='lightblue')
+        plt.plot(time, E_sample_out, linewidth=linewidth2, label='E_sample_out', color='tab:green')
+        plt.plot(time, E_theo_t, linewidth=linewidth, label='E_theory_out', color='brown')
+        plt.xlabel('Time (ps)', fontsize=fontsize)
+        plt.ylabel('E(t) arb.units', fontsize=fontsize)
+        plt.legend(fontsize=fontsize)
+        plt.xticks(fontsize=fontsize)
+        plt.yticks(fontsize=fontsize)
+        plt.tight_layout()
+        # Subplot 2
+        plt.subplot(122)
+        plt.title('After', fontsize=title_fontsize)
+        plt.plot(time, E_air_in, linewidth=linewidth, label='E_air_in', color='lightblue')
+        plt.plot(time, E_sample_out, linewidth=linewidth2, label='E_sample_out', color='tab:green')
+        plt.plot(time, E_theo_fit_t, linewidth=linewidth, label='E_theory_fit', color='brown')
+        plt.xlabel('Time (ps)', fontsize=fontsize)
+        plt.ylabel('E(t) arb.units', fontsize=fontsize)
+        plt.legend(fontsize=fontsize)
+        plt.xticks(fontsize=fontsize)
+        plt.yticks(fontsize=fontsize)
+
+        
+        plt.tight_layout()
+        
+        
+        
+        # Section 2: Minimization plot - freq
+        plt.figure('Minimization Plot - Freq', figsize=(8.6/2.54, 5/2.54), dpi=200)
+        
+        # Subplot 1
+        plt.subplot(121)
+        plt.title('Before', fontsize=title_fontsize)
+        plt.plot(freq, np.abs(E_exp_f), linewidth=linewidth2, label='E_sample_out', color='tab:green')
+        plt.plot(freq, np.abs(E_theo_f), linewidth=linewidth, label='E_theory_fit', color='brown')
+        plt.xlabel('Freq.(THz)', fontsize=fontsize)
+        plt.ylabel('E($\omega$) arb.units', fontsize=fontsize)
+        plt.legend(fontsize=fontsize)
+        plt.xticks(fontsize=fontsize)
+        plt.yticks(fontsize=fontsize)
+        plt.xlim(0,20)
+        plt.tight_layout()
+        # Subplot 2
+        plt.subplot(122)
+        plt.title('After', fontsize=title_fontsize)
+        plt.plot(freq, np.abs(E_exp_f), linewidth=linewidth2, label='E_sample_out', color='tab:green')
+        plt.plot(freq, np.abs(E_theo_fit_f), linewidth=linewidth, label='E_theory_out', color='brown')
+        plt.xlabel('Freq.(THz)', fontsize=fontsize)
+        plt.ylabel('E($\omega$) arb.units', fontsize=fontsize)
+        plt.legend(fontsize=fontsize)
+        plt.xticks(fontsize=fontsize)
+        plt.yticks(fontsize=fontsize)
+        plt.xlim(0,20)
+        plt.tight_layout()
+        
     if to_find[2] == True:
         result = np.array(np.array_split(res['x'], 2))         
         fine_x,smoothed_data1,smoothed_data2,interpolated_data1,interpolated_data2,results = process_data(res, omega, window_size=31, prominence_threshold1=5,prominence_threshold2=0.5)
@@ -252,122 +361,124 @@ if __name__ == '__main__':
         print(f'After: {min_func(np.hstack((result[0], result[1])))}')
         
         ##============== plotting n and k============ 
-        n_k = Material(omega).read_nk("SiO2_new2.txt", "eV")      
-        plt.figure('n_k figure')
+        n_k = Material(omega).read_nk("SiO2_new2.txt", "eV")   
+        
+        # Define global style settings
+        fontsize = 5
+        title_fontsize = 6
+        linewidth1 = 1
+        linewidth2 = 2
+        
+        # Plot n_k figure
+        plt.figure('n_k figure', figsize=(8.6/2.54, 7/2.54), dpi=200)
+        
+        # Subplot 1
         plt.subplot(211)
-        plt.plot(freq,n_k[0],label = 'input n')   
-        plt.plot(freq,result[0].real,label = 'output n')
-        plt.plot(freq,results[0].real,label = 'output n dropped')
-        plt.plot(freq,smoothed_data1,label = 'smoothed')
-        plt.plot(freq_new,interpolated_data1,label = 'interpolated')
-        plt.legend()
+        plt.plot(freq, n_k[0], linewidth=linewidth1, label='input n', color='lightblue')
+        plt.plot(freq, result[0].real, linewidth=linewidth1, label='output n', color='lightgreen')
+        plt.plot(freq, results[0].real, linewidth=linewidth1, label='output n dropped', color='bisque')
+        plt.plot(freq, smoothed_data1, linewidth=linewidth2, label='smoothed', color='orange')
+        plt.plot(freq_new, interpolated_data1, linewidth=linewidth1, label='interpolated', color='purple')
+        plt.xlabel('Freq. (THz)', fontsize=fontsize)
+        plt.ylabel('n', fontsize=fontsize)
+        plt.legend(fontsize=fontsize)
+        plt.xticks(fontsize=fontsize)
+        plt.yticks(fontsize=fontsize)
+        
+        
+        # Subplot 2
         plt.subplot(212)
-        plt.plot(freq,n_k[1],label = 'input k')   
-        plt.plot(freq,result[1].real,label = 'output k')
-        plt.plot(freq,results[1].real,label = 'output k dropped')
-        plt.plot(freq,smoothed_data2,label = 'smoothed')
-        plt.plot(freq_new,interpolated_data2,label = 'interpolated')
-        plt.legend()
+        plt.plot(freq, n_k[1], linewidth=linewidth1, label='input k', color='lightblue')
+        plt.plot(freq, result[1].real, linewidth=linewidth1, label='output k', color='lightgreen')
+        plt.plot(freq, results[1].real, linewidth=linewidth1, label='output k dropped', color='bisque')
+        plt.plot(freq, smoothed_data2, linewidth=linewidth2, label='smoothed', color='orange')
+        plt.plot(freq_new, interpolated_data2, linewidth=linewidth1, label='interpolated', color='purple')
+        plt.xlabel('Freq.(THz)', fontsize=fontsize)
+        plt.ylabel('k', fontsize=fontsize)
+        plt.legend(fontsize=fontsize)
+        plt.xticks(fontsize=fontsize)
+        plt.yticks(fontsize=fontsize)        
+        plt.show()
+        
+        plt.tight_layout()
+        
+        E_theo_fit_t, E_theo_fit_f = E_Theory(result)
+        E_theo_t_test, E_theo_f_test =  E_Theory(inter_new)
+        
+        
+                # Define global style settings
+        fontsize = 5
+        title_fontsize = 6
+        linewidth = 1
+        linewidth2 = 2
+        # Section 1: Minimization plot - time
+        plt.figure('Minimization Plot - Time', figsize=(8.6/2.54, 5/2.54), dpi=200)
+        
+        # Subplot 1
+        plt.subplot(121)
+        plt.title('Before', fontsize=title_fontsize)
+        plt.plot(time, E_air_in, linewidth=linewidth, label='E_air_in', color='lightblue')
+        plt.plot(time, E_sample_out, linewidth=linewidth2, label='E_sample_out', color='tab:green')
+        plt.plot(time, E_theo_t, linewidth=linewidth, label='E_theory_out', color='brown')
+        plt.xlabel('Time (ps)', fontsize=fontsize)
+        plt.ylabel('E(t) arb.units', fontsize=fontsize)
+        plt.legend(fontsize=fontsize)
+        plt.xticks(fontsize=fontsize)
+        plt.yticks(fontsize=fontsize)
+        plt.tight_layout()
+        # Subplot 2
+        plt.subplot(122)
+        plt.title('After', fontsize=title_fontsize)
+        plt.plot(time, E_air_in, linewidth=linewidth, label='E_air_in', color='lightblue')
+        plt.plot(time, E_sample_out, linewidth=linewidth2, label='E_sample_out', color='tab:green')
+        plt.plot(time, E_theo_fit_t, linewidth=linewidth, label='E_theory_fit', color='brown')
+        plt.xlabel('Time (ps)', fontsize=fontsize)
+        plt.ylabel('E(t) arb.units', fontsize=fontsize)
+        plt.legend(fontsize=fontsize)
+        plt.xticks(fontsize=fontsize)
+        plt.yticks(fontsize=fontsize)
+        
+        plt.tight_layout()
+        
+        
+        
+        # Section 2: Minimization plot - freq
+        plt.figure('Minimization Plot - Freq', figsize=(8.6/2.54, 5/2.54), dpi=200)
+        
+        # Subplot 1
+        plt.subplot(121)
+        plt.title('Before', fontsize=title_fontsize)
+        plt.plot(freq, np.abs(E_exp_f), linewidth=linewidth2, label='E_sample_out', color='tab:green')
+        plt.plot(freq, np.abs(E_theo_f), linewidth=linewidth, label='E_theory_fit', color='brown')
+        plt.xlabel('Freq.(THz)', fontsize=fontsize)
+        plt.ylabel('E($\omega$) arb.units', fontsize=fontsize)
+        plt.legend(fontsize=fontsize)
+        plt.xticks(fontsize=fontsize)
+        plt.yticks(fontsize=fontsize)
+        plt.xlim(0,20)
+        plt.tight_layout()
+        # Subplot 2
+        plt.subplot(122)
+        plt.title('After', fontsize=title_fontsize)
+        plt.plot(freq, np.abs(E_exp_f), linewidth=linewidth2, label='E_sample_out', color='tab:green')
+        plt.plot(freq, np.abs(E_theo_fit_f), linewidth=linewidth, label='E_theory_out', color='brown')
+        plt.xlabel('Freq.(THz)', fontsize=fontsize)
+        plt.ylabel('E($\omega$) arb.units', fontsize=fontsize)
+        plt.legend(fontsize=fontsize)
+        plt.xticks(fontsize=fontsize)
+        plt.yticks(fontsize=fontsize)
+        plt.xlim(0,20)
+        plt.tight_layout()
+        
     print(f'Result: {result}')
     
-    E_theo_fit_t, E_theo_fit_f = E_Theory(result)
-    E_theo_t_test, E_theo_f_test =  E_Theory(inter_new)
-
-    # '''Minimization plot - time'''
-    # fig, (ax1, ax2,ax3) = plt.subplots(1, 3,figsize=(12, 4))
-    # fig.suptitle('Minimized - time domain')
-    # ax1.set_title('Before')
-    # ax2.set_title('After')
-    # ax3.set_title('New result plot')
-    # ax1.plot(t_grid, E_air_in, alpha=0.4,label = 'E_air_in')
-    # ax1.plot(t_grid, E_sample_out,label = 'E_sample_out')
-    # ax1.plot(t_grid, E_theo_t,label = 'E_theory_time')
-    # ax1.legend()
-    # ax2.plot(t_grid, E_air_in, alpha=0.4,label = 'E_air_in')
-    # ax2.plot(t_grid, E_sample_out, label='E_sample_out')
-    # ax2.plot(t_grid, E_theo_fit_t, label='Best fit E')
-    # ax2.legend()
-    # ax3.plot(t_grid, E_air_in, alpha=0.4,label = 'E_air_in')
-    # ax3.plot(t_grid, E_sample_out, label='E_sample_out')
-    # ax3.plot(t_grid, E_theo_t_test, label='Best fit E inter')
-    # ax3.legend()    
-    # plt.show()
-
-    # '''Minimization plot - freq'''
-    # fig, (ax1, ax2,ax3) = plt.subplots(1, 3,figsize=(12, 4))
-    # fig.suptitle('Minimized - freq')
-    # ax1.set_title('Before')
-    # ax2.set_title('After')
-    # ax3.set_title('New result plot')
-    # ax1.plot(omega, np.abs(E_exp_f))
-    # ax1.plot(omega, np.abs(E_theo_f))
-    # ax2.plot(omega, np.abs(E_exp_f), label='exp')
-    # ax2.plot(omega, np.abs(E_theo_fit_f), label='sim')
-    # ax3.plot(omega, np.abs(E_exp_f), label='exp')
-    # ax3.plot(omega, np.abs(E_theo_f_test), label='sim')
-    # ax1.legend()
-    # ax2.legend()
-    # ax3.legend()
-    # plt.show()
 
 
 
 
 
-# Section 1: Minimization plot - time
-plt.figure('Minimization Plot - Time',figsize=(12, 4))
-plt.suptitle('Minimized - Time Domain')
 
-# Subplot 1
-plt.subplot(131) # 1 row, 3 columns, 1st figure
-plt.title('Before')
-plt.plot(time, E_air_in, alpha=0.4, label='E_air_in')
-plt.plot(time, E_sample_out, label='E_sample_out')
-plt.plot(time, E_theo_t, label='E_theory_time')
-plt.legend()
 
-# Subplot 2
-plt.subplot(132) # 1 row, 3 columns, 2nd figure
-plt.title('After')
-plt.plot(time, E_air_in, alpha=0.4, label='E_air_in')
-plt.plot(time, E_sample_out, label='E_sample_out')
-plt.plot(time, E_theo_fit_t, label='Best fit E')
-plt.legend()
 
-# Subplot 3
-# plt.subplot(133) # 1 row, 3 columns, 3rd figure
-# plt.title('New Result Plot')
-# plt.plot(time, E_air_in, alpha=0.4, label='E_air_in')
-# plt.plot(time, E_sample_out, label='E_sample_out')
-# plt.plot(time, E_theo_t_test, label='Best fit E inter')
-# plt.legend()
-
-plt.show()
-
-# Section 2: Minimization plot - freq
-plt.figure('Minimization Plot - Freq',figsize=(12, 4))
-plt.suptitle('Minimized - Freq')
-
-# Subplot 1
-plt.subplot(131) # 1 row, 3 columns, 1st figure
-plt.title('Before')
-plt.plot(freq, np.abs(E_exp_f))
-plt.plot(freq, np.abs(E_theo_f))
-
-# Subplot 2
-plt.subplot(132) # 1 row, 3 columns, 2nd figure
-plt.title('After')
-plt.plot(freq, np.abs(E_exp_f), label='exp')
-plt.plot(freq, np.abs(E_theo_fit_f), label='sim')
-plt.legend()
-
-# # Subplot 3
-# plt.subplot(133) # 1 row, 3 columns, 3rd figure
-# plt.title('New Result Plot')
-# plt.plot(freq, np.abs(E_exp_f), label='exp')
-# plt.plot(freq, np.abs(E_theo_f_test), label='sim')
-plt.legend()
-
-plt.show()
 
 

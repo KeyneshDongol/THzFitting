@@ -1,8 +1,8 @@
 {
 
         "to_find": {
-        "permittivity": true,
-        "plasma_damping": false,
+        "permittivity": false,
+        "plasma_damping": true,
         "n_k": false
     },
 
@@ -11,7 +11,7 @@
     },
 
     "pulse_res": {
-        "n": 200,
+        "n": 300,
         "tmin": 0,
         "tmax": 2.5e-11,
         "tpos": 0e-11
@@ -34,7 +34,7 @@
         },
         {
             "thickness": 3e-9,
-            "eps_data": [5.145, 69.2e-3],
+            "eps_data": [3.34425 , 0.04498],
             "is_substrate": false,
             "is_known": false
         },
