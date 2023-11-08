@@ -52,30 +52,30 @@ plt.plot(t_grid_new,E_sample_out_new)
 
 
 
-import numpy as np
-from pathlib import Path
+# import numpy as np
+# from pathlib import Path
 
 
-def save_arrays_to_file(freq, n, k, path):
-    # Stack the arrays horizontally
-    data = np.column_stack((freq, n, k,))
+# def save_arrays_to_file(freq, n, k, path):
+#     # Stack the arrays horizontally
+#     data = np.column_stack((freq, n, k,))
 
-    # Determine the absolute path
-    file_path = Path.cwd() / 'material_data' / path
+#     # Determine the absolute path
+#     file_path = Path.cwd() / 'material_data' / path
 
-    # Ensure the directory exists
-    file_path.parent.mkdir(parents=True, exist_ok=True)
+#     # Ensure the directory exists
+#     file_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Save the data to a text file
-    np.savetxt(file_path, data, fmt='%d', delimiter='\t', comments='')
+#     # Save the data to a text file
+#     np.savetxt(file_path, data, fmt='%d', delimiter='\t', comments='')
 
 
-# Sample data arrays
-array1 = np.array([1, 2, 3, 4])
-array2 = np.array([5, 6, 7, 8])
-array3 = np.array([9, 10, 11, 12])
+# # Sample data arrays
+# array1 = np.array([1, 2, 3, 4])
+# array2 = np.array([5, 6, 7, 8])
+# array3 = np.array([9, 10, 11, 12])
 
-save_arrays_to_file(array1, array2, array3, 'fitted_data.txt')
+# save_arrays_to_file(array1, array2, array3, 'fitted_data.txt')
 
 # import numpy as np
 

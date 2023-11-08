@@ -52,6 +52,19 @@ def E_TMM(layers, to_find, omega, eps0, mu, d, f_in,sub_layer, echoes_removed, u
     return trans, f_inf_R
 
 
+def calculate_nk_for_unknown_materials(is_known, eps_data, omega):
+    # Assuming the Material class is defined somewhere else and it has the method read_nk()
+    results = []
+    
+    for known, (filename, units) in zip(is_known, eps_data):
+        if not known:
+            material = Material(omega)
+            n_k = material.read_nk(filename, units)
+            results.append(n_k)  # Replace with the actual nk value
+        else:
+            results.append(None)  # or whatever you want to do when is_known is True
+
+    return results
 ''' error function without penalty term'''
 # def Error_func(layers, to_find, omega, eps0, mu, d, E_air_f, E_exp_f,sub_layer,echoes_removed, unknown):
 #     if to_find[0] == True:
@@ -211,7 +224,7 @@ if __name__ == '__main__':
     min_func = partial(Error_func, layers, to_find, omega, eps0, mu, d, E_air_f, E_exp_f,sub_layer,echoes_removed)
         
     if to_find[1] == True:
-        bounds = Bounds(unknown*0.65, unknown*0.65)
+        bounds = Bounds(unknown*0.65, unknown*0.5)
     else:
         bounds = None
     start = time.time()
@@ -400,12 +413,19 @@ if __name__ == '__main__':
         fine_x,smoothed_data1,smoothed_data2,interpolated_data1,interpolated_data2,results = process_data(res, omega, window_size=31, prominence_threshold1=5,prominence_threshold2=0.5)
         freq_new = fine_x*1e-12/2*3.1415926
         inter_new = np.array([smoothed_data1,smoothed_data2])
-        A = tools.save_nk('fitted_data_test.txt', freq_new,interpolated_data1,interpolated_data2)
+        # A = tools.save_nk('fitted_data_test.txt', freq_new,interpolated_data1,interpolated_data2)
         
         print(f'After: {min_func(np.hstack((result[0], result[1])))}')
         
         ##============== plotting n and k============ 
-        n_k = Material(omega).read_nk("SiO2_new2.txt", "eV")   
+        # n_k = Material(omega).read_nk("SiO2_new2.txt", "eV")  
+
+        for known, data in zip(is_known, eps_data):
+            if not known:
+                filename, units = data
+                n_k = Material(omega).read_nk(filename, units)
+
+
         
         # Define global style settings
         fontsize = 5
@@ -449,7 +469,7 @@ if __name__ == '__main__':
         ##==============PLOTTING RESULTS ============ 
         
         E_theo_fit_t, E_theo_fit_f = E_Theory(result)
-        E_theo_t_test, E_theo_f_test =  E_Theory(inter_new)
+        # E_theo_t_test, E_theo_f_test =  E_Theory(inter_new)
         
         
                 # Define global style settings
