@@ -276,15 +276,13 @@ if __name__ == '__main__':
     if to_find[2] == True:
         result = np.array(np.array_split(res['x'], 2))         
         fine_x,smoothed_data1,smoothed_data2,interpolated_data1,interpolated_data2,results = noise_remove(res, omega, window_size=31, prominence_threshold1=5,prominence_threshold2=0.5)
-        freq_new = fine_x*1e-12/2*3.1415926
+        freq_new = fine_x*1e-12/2*3.1415926   #THz
         inter_new = np.array([smoothed_data1,smoothed_data2])
-        # A = tools.save_nk('fitted_data_test.txt', freq_new,interpolated_data1,interpolated_data2)
+        new_results = tools.save_nk('fitted_data_test.txt', freq_new,interpolated_data1,interpolated_data2)
         
         print(f'After: {min_func(np.hstack((result[0], result[1])))}')
         
         ##============== plotting n and k============ 
-        # n_k = Material(omega).read_nk("SiO2_new2.txt", "eV")  
-
         for known, data in zip(is_known, eps_data):
             if not known:
                 filename, units = data
@@ -334,7 +332,6 @@ if __name__ == '__main__':
         ##==============PLOTTING RESULTS ============ 
         
         E_theo_fit_t, E_theo_fit_f = E_Theory(result)
-        # E_theo_t_test, E_theo_f_test =  E_Theory(inter_new)
         
         
                 # Define global style settings

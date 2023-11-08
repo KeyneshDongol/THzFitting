@@ -2,12 +2,12 @@
 
         "to_find": {
         "permittivity": false,
-        "plasma_damping": true,
-        "n_k": false
+        "plasma_damping": false,
+        "n_k": true
     },
 
     "input": {
-        "pulse": ["air.txt", "quartz_pt.txt"]
+        "pulse": ["air.txt", "quartz.txt"]
     },
 
     "pulse_res": {
@@ -30,13 +30,13 @@
             "thickness": 0.001,
             "eps_data": ["fitted_data_test.txt", "THz"],
             "is_substrate": true,
-            "is_known": true
+            "is_known": false
         },
         {
-            "thickness": 3e-9,
-            "eps_data": [3.34425 , 0.04498],
+            "thickness": 0,
+            "eps_data": ["air.txt", "eV"],
             "is_substrate": false,
-            "is_known": false
+            "is_known": true
         },
         {
             "thickness": 0,
