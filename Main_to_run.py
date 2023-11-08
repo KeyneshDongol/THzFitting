@@ -406,7 +406,16 @@ if __name__ == '__main__':
 
 
 
+# Load the existing JSON data
+with open('inputs.json') as f:
+    data = json.load(f)
 
+# Modify the layer's eps_data only when 'is_known' is False
+for layer in data['layers']:
+    if not layer['is_known']:
+        layer['eps_data'][0] = 'fitted_data_test.txt'
 
-
+# Save the modified data back to a new JSON file
+with open('results.json', 'w') as f:
+    json.dump(data, f, indent=4)
 

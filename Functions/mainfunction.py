@@ -72,7 +72,7 @@ def E_TMM(layers, to_find, omega, eps0, mu, d, f_in,sub_layer, echoes_removed, u
 
 
 ''' error function with penalty term'''
-def Error_func(layers, to_find, omega, eps0, mu, d, E_air_f, E_exp_f, sub_layer, echoes_removed, unknown):
+def Error_func(layers, to_find, omega,eps0, mu, d, E_air_f, E_exp_f, sub_layer, echoes_removed, unknown):
     if to_find[0] == True:
         unknown = unknown[:len(unknown)//2] + 1j*unknown[len(unknown)//2:]
     if to_find[2] == True:

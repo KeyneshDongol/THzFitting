@@ -29,7 +29,7 @@ from Functions.mainfunction import E_TMM, Error_func,  noise_remove
 # if __name__ == '__main__':
     
 '''inputs'''
-f = open(Path.cwd()/'inputs1.json')
+f = open(Path.cwd()/'results.json')
 config = json.load(f)
 to_find = list(config['to_find'].values()) 
 input_num = list(config['input'].values())
