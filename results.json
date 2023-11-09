@@ -11,7 +11,7 @@
         ]
     },
     "pulse_res": {
-        "n": 500,
+        "n": 200,
         "tmin": 0,
         "tmax": 2.5e-11,
         "tpos": 0.0
@@ -30,7 +30,7 @@
             "thickness": 0.001,
             "eps_data": [
                 "fitted_data_test.txt",
-                "eV"
+                "THz"
             ],
             "is_substrate": true,
             "is_known": false

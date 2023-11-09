@@ -414,6 +414,7 @@ with open('inputs.json') as f:
 for layer in data['layers']:
     if not layer['is_known']:
         layer['eps_data'][0] = 'fitted_data_test.txt'
+        layer['eps_data'][1] = 'THz'
 
 # Save the modified data back to a new JSON file
 with open('results.json', 'w') as f:
