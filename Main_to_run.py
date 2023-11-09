@@ -89,18 +89,18 @@ if __name__ == '__main__':
     min_func = partial(Error_func, layers, to_find, omega, eps0, mu, d, E_air_f, E_exp_f,sub_layer,echoes_removed)
         
     if to_find[1] == True:
-        bounds = Bounds(unknown*0.65, unknown*0.5)
+        bounds = None#Bounds(unknown*0.65, unknown*0.65)
     else:
         bounds = None
     start = time.time()
-    res = minimize(min_func, new_unknown, method='Powell', bounds=bounds, options= {'disp' : True, 'adaptive': True, 'maxiter': 100000, 'maxfev': 100000})
+    res = minimize(min_func, new_unknown, method='Powell', bounds = bounds,  options= {'disp' : True, 'adaptive': True, 'maxiter': 15, 'maxfev': 15})
 
     end = time.time()
     
 
     
     freq = omega*1e-12/2*pi
-    time = t_grid*1e12
+    t_grid = t_grid*1e12
 
     print(f'Elapsed time: {end - start}s')
     print(f'Before: error function =  {min_func(new_unknown)}')
@@ -216,9 +216,9 @@ if __name__ == '__main__':
         # Subplot 1
         plt.subplot(121)
         plt.title('Before', fontsize=title_fontsize)
-        plt.plot(time, E_air_in, linewidth=linewidth, label='E_air_in', color='lightblue')
-        plt.plot(time, E_sample_out, linewidth=linewidth2, label='E_sample_out', color='tab:green')
-        plt.plot(time, E_theo_t, linewidth=linewidth, label='E_theory_out', color='brown')
+        plt.plot(t_grid, E_air_in, linewidth=linewidth, label='E_air_in', color='lightblue')
+        plt.plot(t_grid, E_sample_out, linewidth=linewidth2, label='E_sample_out', color='tab:green')
+        plt.plot(t_grid, E_theo_t, linewidth=linewidth, label='E_theory_out', color='brown')
         plt.xlabel('Time (ps)', fontsize=fontsize)
         plt.ylabel('E(t) arb.units', fontsize=fontsize)
         plt.legend(fontsize=fontsize)
@@ -228,9 +228,9 @@ if __name__ == '__main__':
         # Subplot 2
         plt.subplot(122)
         plt.title('After', fontsize=title_fontsize)
-        plt.plot(time, E_air_in, linewidth=linewidth, label='E_air_in', color='lightblue')
-        plt.plot(time, E_sample_out, linewidth=linewidth2, label='E_sample_out', color='tab:green')
-        plt.plot(time, E_theo_fit_t, linewidth=linewidth, label='E_theory_fit', color='brown')
+        plt.plot(t_grid, E_air_in, linewidth=linewidth, label='E_air_in', color='lightblue')
+        plt.plot(t_grid, E_sample_out, linewidth=linewidth2, label='E_sample_out', color='tab:green')
+        plt.plot(t_grid, E_theo_fit_t, linewidth=linewidth, label='E_theory_fit', color='brown')
         plt.xlabel('Time (ps)', fontsize=fontsize)
         plt.ylabel('E(t) arb.units', fontsize=fontsize)
         plt.legend(fontsize=fontsize)
@@ -278,7 +278,7 @@ if __name__ == '__main__':
         fine_x,smoothed_data1,smoothed_data2,interpolated_data1,interpolated_data2,results = noise_remove(res, omega, window_size=31, prominence_threshold1=5,prominence_threshold2=0.5)
         freq_new = fine_x*1e-12/2*3.1415926   #THz
         inter_new = np.array([smoothed_data1,smoothed_data2])
-        new_results = tools.save_nk('fitted_data_test.txt', freq_new,interpolated_data1,interpolated_data2)
+        new_results = tools.save_nk('fitted_data_test2.txt', freq_new,interpolated_data1,interpolated_data2)
         
         print(f'After: {min_func(np.hstack((result[0], result[1])))}')
         
@@ -345,9 +345,9 @@ if __name__ == '__main__':
         # Subplot 1
         plt.subplot(121)
         plt.title('Before', fontsize=title_fontsize)
-        plt.plot(time, E_air_in, linewidth=linewidth, label='E_air_in', color='lightblue')
-        plt.plot(time, E_sample_out, linewidth=linewidth2, label='E_sample_out', color='tab:green')
-        plt.plot(time, E_theo_t, linewidth=linewidth, label='E_theory_out', color='brown')
+        plt.plot(t_grid, E_air_in, linewidth=linewidth, label='E_air_in', color='lightblue')
+        plt.plot(t_grid, E_sample_out, linewidth=linewidth2, label='E_sample_out', color='tab:green')
+        plt.plot(t_grid, E_theo_t, linewidth=linewidth, label='E_theory_out', color='brown')
         plt.xlabel('Time (ps)', fontsize=fontsize)
         plt.ylabel('E(t) arb.units', fontsize=fontsize)
         plt.legend(fontsize=fontsize)
@@ -357,9 +357,9 @@ if __name__ == '__main__':
         # Subplot 2
         plt.subplot(122)
         plt.title('After', fontsize=title_fontsize)
-        plt.plot(time, E_air_in, linewidth=linewidth, label='E_air_in', color='lightblue')
-        plt.plot(time, E_sample_out, linewidth=linewidth2, label='E_sample_out', color='tab:green')
-        plt.plot(time, E_theo_fit_t, linewidth=linewidth, label='E_theory_fit', color='brown')
+        plt.plot(t_grid, E_air_in, linewidth=linewidth, label='E_air_in', color='lightblue')
+        plt.plot(t_grid, E_sample_out, linewidth=linewidth2, label='E_sample_out', color='tab:green')
+        plt.plot(t_grid, E_theo_fit_t, linewidth=linewidth, label='E_theory_fit', color='brown')
         plt.xlabel('Time (ps)', fontsize=fontsize)
         plt.ylabel('E(t) arb.units', fontsize=fontsize)
         plt.legend(fontsize=fontsize)
@@ -405,18 +405,20 @@ if __name__ == '__main__':
 
 
 
-
-# Load the existing JSON data
-with open('inputs.json') as f:
-    data = json.load(f)
-
-# Modify the layer's eps_data only when 'is_known' is False
-for layer in data['layers']:
-    if not layer['is_known']:
-        layer['eps_data'][0] = 'fitted_data_test.txt'
-        layer['eps_data'][1] = 'THz'
-
-# Save the modified data back to a new JSON file
-with open('results.json', 'w') as f:
-    json.dump(data, f, indent=4)
-
+    # Load the existing JSON data
+    with open('inputs.json') as f:
+        data = json.load(f)
+    
+    # Modify the layer's eps_data only when 'is_known' is False
+    for layer in data['layers']:
+        if not layer['is_known']:
+            # Check if the first element of eps_data is a string
+            if isinstance(layer['eps_data'][0], str):
+                layer['eps_data'] = ['fitted_data_test2.txt', 'THz']
+            # Check if the first element of eps_data is a number (int or float)
+            elif isinstance(layer['eps_data'][0], (int, float)):
+                layer['eps_data'] = [result[0],result[1]]
+    
+    # Save the modified data back to a new JSON file
+    with open('results.json', 'w') as f:
+        json.dump(data, f, indent=4)
