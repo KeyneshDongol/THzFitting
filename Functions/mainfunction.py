@@ -125,8 +125,8 @@ def noise_remove(res, omega, window_size, prominence_threshold1, prominence_thre
     neg_peaks2 = find_all_peaks(-result[1], prominence_threshold2)
     
     # Remove both positive and negative peaks
-    result[0][pos_peaks1] = 2; result[0][neg_peaks1] = 2
-    result[1][pos_peaks2] = 0; result[1][neg_peaks2] = 0
+    result[0][pos_peaks1] = 3.3; result[0][neg_peaks1] = 3.3
+    result[1][pos_peaks2] = 0.002; result[1][neg_peaks2] = 0.002
     
     # Apply moving average smoothing to the modified data
     smoothed_data1 = moving_average(result[0], window_size)

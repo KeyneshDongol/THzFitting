@@ -24,7 +24,7 @@ def find_start(t_grid, e_in, e_out):
         if e_in[i] > diff_threshold:
             start_idx = i
             break    
-    return t_grid[start_idx-20:], e_in[start_idx-20:], e_out[start_idx-20:]
+    return t_grid[start_idx-30:], e_in[start_idx-30:], e_out[start_idx-30:]
 
 def fitted_pulse(path_in, path_out, tmin, tmax, tpos, d, n):
     t_grid, e_in = read_pulse(path_in)

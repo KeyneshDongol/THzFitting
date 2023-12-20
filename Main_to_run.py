@@ -93,7 +93,7 @@ if __name__ == '__main__':
     else:
         bounds = None
     start = time.time()
-    res = minimize(min_func, new_unknown, method='Powell', bounds = bounds,  options= {'disp' : True, 'adaptive': True, 'maxiter': 1000000, 'maxfev': 100000})
+    res = minimize(min_func, new_unknown, method='powell', bounds = bounds,  options= {'disp' : True, 'adaptive': True, 'maxiter': 1000000, 'maxfev': 100000})
 
     end = time.time()
     
@@ -255,7 +255,7 @@ if __name__ == '__main__':
         plt.legend(fontsize=fontsize)
         plt.xticks(fontsize=fontsize)
         plt.yticks(fontsize=fontsize)
-        plt.xlim(0,20)
+        plt.xlim(0,50)
         plt.tight_layout()
         # Subplot 2
         plt.subplot(122)
@@ -267,7 +267,7 @@ if __name__ == '__main__':
         plt.legend(fontsize=fontsize)
         plt.xticks(fontsize=fontsize)
         plt.yticks(fontsize=fontsize)
-        plt.xlim(0,20)
+        plt.xlim(0,50)
         plt.tight_layout()
 
 
@@ -385,7 +385,7 @@ if __name__ == '__main__':
         plt.legend(fontsize=fontsize)
         plt.xticks(fontsize=fontsize)
         plt.yticks(fontsize=fontsize)
-        plt.xlim(0,20)
+        plt.xlim(0,50)
         plt.tight_layout()
         # Subplot 2
         plt.subplot(122)
@@ -397,7 +397,7 @@ if __name__ == '__main__':
         plt.legend(fontsize=fontsize)
         plt.xticks(fontsize=fontsize)
         plt.yticks(fontsize=fontsize)
-        plt.xlim(0,20)
+        plt.xlim(0,50)
         plt.tight_layout()
         
         print(f'Result: {result}')
@@ -416,7 +416,7 @@ if __name__ == '__main__':
         if not layer['is_known']:
             # Check if the first element of eps_data is a string
             if isinstance(layer['eps_data'][0], str):
-                layer['eps_data'] = ['fitted_data_test.txt', 'THz']
+                layer['eps_data'] = ['fitted_data_test2.txt', 'THz']
             # Check if the first element of eps_data is a number (int or float)
             elif isinstance(layer['eps_data'][0], (int, float)):
                 layer['eps_data'] = [result[0],result[1]]

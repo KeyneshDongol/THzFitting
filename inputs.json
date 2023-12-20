@@ -2,8 +2,8 @@
 
         "to_find": {
         "permittivity": false,
-        "plasma_damping": true,
-        "n_k": false
+        "plasma_damping": false,
+        "n_k": true
     },
 
     "input": {
@@ -11,9 +11,9 @@
     },
 
     "pulse_res": {
-        "n": 200,
+        "n": 300,
         "tmin": 0,
-        "tmax": 2.7e-11,
+        "tmax": 1.5e-11,
         "tpos": 0e-11
     },
 
@@ -27,16 +27,16 @@
             "is_known": true
         },
         {
-            "thickness": 0.001,
-            "eps_data": ["fitted_data_test.txt", "THz"],
+            "thickness": 142e-6,
+            "eps_data": ["Al2O3.txt", "eV"],
             "is_substrate": true,
-            "is_known": true
+            "is_known": false
         },
         {
-            "thickness":3e-9,
-            "eps_data": [5.145,0.069],
+            "thickness":0,
+            "eps_data": ["air.txt", "eV"],
             "is_substrate": false,
-            "is_known": false
+            "is_known": true
         },
         {
             "thickness": 0,

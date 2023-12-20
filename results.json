@@ -1,19 +1,19 @@
 {
     "to_find": {
         "permittivity": false,
-        "plasma_damping": true,
-        "n_k": false
+        "plasma_damping": false,
+        "n_k": true
     },
     "input": {
         "pulse": [
-            "air.txt",
-            "quartz_pt.txt"
+            "Sapphire_142um_ref.txt",
+            "Sapphire_142um_sample.txt"
         ]
     },
     "pulse_res": {
-        "n": 200,
+        "n": 300,
         "tmin": 0,
-        "tmax": 2.7e-11,
+        "tmax": 5.6e-12,
         "tpos": 0.0
     },
     "layers": [
@@ -27,22 +27,22 @@
             "is_known": true
         },
         {
-            "thickness": 0.001,
+            "thickness": 0.000142,
             "eps_data": [
-                "fitted_data_test.txt",
+                "fitted_data_test2.txt",
                 "THz"
             ],
             "is_substrate": true,
-            "is_known": true
+            "is_known": false
         },
         {
-            "thickness": 3e-09,
+            "thickness": 0,
             "eps_data": [
-                3.3442499999999997,
-                0.04485000000000001
+                "air.txt",
+                "eV"
             ],
             "is_substrate": false,
-            "is_known": false
+            "is_known": true
         },
         {
             "thickness": 0,
