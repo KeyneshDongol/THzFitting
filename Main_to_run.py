@@ -93,7 +93,7 @@ if __name__ == '__main__':
     else:
         bounds = None
     start = time.time()
-    res = minimize(min_func, new_unknown, method='Powell', bounds = bounds,  options= {'disp' : True, 'adaptive': True, 'maxiter': 15, 'maxfev': 15})
+    res = minimize(min_func, new_unknown, method='Powell', bounds = bounds,  options= {'disp' : True, 'adaptive': True, 'maxiter': 1000000, 'maxfev': 100000})
 
     end = time.time()
     
@@ -272,8 +272,10 @@ if __name__ == '__main__':
 
 
 
-    ## Fitting  plasma and damping frequency         
+    ## Fitting  n and k         
     if to_find[2] == True:
+        
+        ##============== noise removing (pure data smoothing)============ 
         result = np.array(np.array_split(res['x'], 2))         
         fine_x,smoothed_data1,smoothed_data2,interpolated_data1,interpolated_data2,results = noise_remove(res, omega, window_size=31, prominence_threshold1=5,prominence_threshold2=0.5)
         freq_new = fine_x*1e-12/2*3.1415926   #THz
@@ -414,7 +416,7 @@ if __name__ == '__main__':
         if not layer['is_known']:
             # Check if the first element of eps_data is a string
             if isinstance(layer['eps_data'][0], str):
-                layer['eps_data'] = ['fitted_data_test2.txt', 'THz']
+                layer['eps_data'] = ['fitted_data_test.txt', 'THz']
             # Check if the first element of eps_data is a number (int or float)
             elif isinstance(layer['eps_data'][0], (int, float)):
                 layer['eps_data'] = [result[0],result[1]]
