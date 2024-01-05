@@ -40,10 +40,25 @@ pulse_path = input_num[0]
 exp_in_pulse = Path.cwd()/'experimental_data'/pulse_path[0]  # current working directory
 exp_out_pulse = Path.cwd()/'experimental_data'/pulse_path[1] # current working directory
 t_grid, E_air_in= exp_pulse.read_pulse(exp_in_pulse) 
-omega, E_sample_out= exp_pulse.read_pulse(exp_out_pulse) 
+_, E_sample_out= exp_pulse.read_pulse(exp_out_pulse) 
 t_grid_new, E_air_in_new, E_sample_out_new = exp_pulse.fitted_pulse(exp_in_pulse, exp_out_pulse, tmin, tmax, tpos, d, n) # data reading (propagated through air)
 omega, E_air_f = fourier.ft(t_grid_new, E_air_in_new)
 E_exp_f = fourier.ft(t_grid_new, E_sample_out_new)[1]
+
+
+# =============================================================================
+# cleaning data
+# =============================================================================
+
+
+
+# t_grid, E_air_in = exp_pulse.isolate_pulse(t_grid,E_air_in,100,100)
+# _,E_sample_out = exp_pulse.isolate_pulse(t_grid,E_sample_out,100,100)
+
+
+# plt.figure('test')
+# plt.plot(t_grid,e_amplitude)
+# plt.plot(t_grid,e_amplitude2)
 
 
 # =============================================================================
@@ -56,58 +71,7 @@ freq = omega*1e-12/2*pi
 t_grid_plot = t_grid  # convert to ps for plotting
 t_grid_new_plot = t_grid_new * 1e12  # convert to ps for plotting
 
-# # Define the style settings
-# figsize = (6, 6)  # figure size in inches
-# linewidth = 2  # line width for the plots
-# tick_labelsize = 10  # size of the ticks labels
-# label_fontsize = 10  # font size for the x and y labels
-# title_fontsize = 10  # font size for the titles
-# colors = ['blue', 'green']  # colors for the plots
 
-# # Create a figure with subplots
-# fig, (ax1, ax2) = plt.subplots(2, 1, figsize=figsize)
-
-# # First subplot for raw data
-# ax1.plot(t_grid_plot, E_air_in, label='E_air_in', linewidth=linewidth, color=colors[0])
-# ax1.plot(t_grid_plot, E_sample_out, label='E_sample_out', linewidth=linewidth, color=colors[1])
-# ax1.set_xlabel('Time (ps)', fontsize=label_fontsize)
-# ax1.set_ylabel('Electric Field', fontsize=label_fontsize)
-# ax1.tick_params(axis='both', labelsize=tick_labelsize)
-# ax1.legend(fontsize=label_fontsize)
-# ax1.set_title('Raw data', fontsize=title_fontsize)
-
-# # Second subplot for processed raw data
-# ax2.plot(t_grid_new_plot, E_air_in_new, label='E_air_in_processed', linewidth=linewidth, color=colors[0])
-# ax2.plot(t_grid_new_plot, E_sample_out_new, label='E_sample_out_processed', linewidth=linewidth, color=colors[1])
-# ax2.set_xlabel('Time (ps)', fontsize=label_fontsize)
-# ax2.set_ylabel('Electric Field', fontsize=label_fontsize)
-# ax2.tick_params(axis='both', labelsize=tick_labelsize)
-# ax2.legend(fontsize=label_fontsize)
-# ax2.set_title('Processed raw data', fontsize=title_fontsize)
-
-# # Adjust layout to prevent overlap
-# plt.tight_layout()
-
-# # Save the figure if needed
-# plt.savefig('processed_data_plots.png', dpi=300)
-
-# # Show the plot
-# plt.show()
-
-
-
-
-# plt.figure('spectrum')
-# plt.title('Freq. domain', fontsize=title_fontsize)
-# plt.plot(freq, np.abs(E_air_f),  label='E_sample_out', color='tab:green')
-# plt.plot(freq, np.abs(E_exp_f),  label='E_theory_fit', color='brown')
-# plt.xlabel('Freq.(THz)')
-# plt.ylabel('E($\omega$) arb.units')
-# plt.legend(fontsize=label_fontsize)
-# plt.xticks(fontsize=tick_labelsize)
-# plt.yticks(fontsize=tick_labelsize)
-# plt.xlim(0,20)    
-# plt.tight_layout()
 
 
 

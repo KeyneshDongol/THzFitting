@@ -7,13 +7,13 @@
     },
 
     "input": {
-        "pulse": ["Sapphire_494um_ref.txt", "Sapphire_494um_sample.txt"]
+        "pulse": ["air.txt", "quartz.txt"]
     },
 
     "pulse_res": {
-        "n": 300,
+        "n": 200,
         "tmin": 0,
-        "tmax": 1.5e-11,
+        "tmax": 27e-12,
         "tpos": 0e-11
     },
 
@@ -27,7 +27,7 @@
             "is_known": true
         },
         {
-            "thickness": 142e-6,
+            "thickness": 1e-3,
             "eps_data": ["Al2O3.txt", "eV"],
             "is_substrate": true,
             "is_known": false

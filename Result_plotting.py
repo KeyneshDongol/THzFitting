@@ -128,7 +128,7 @@ plt.ylabel('E($\omega$) arb.units', fontsize=fontsize)
 plt.legend(fontsize=fontsize)
 plt.xticks(fontsize=fontsize)
 plt.yticks(fontsize=fontsize)
-plt.xlim(0,20)    
+# plt.xlim(0,20)    
 plt.tight_layout()
 
 
@@ -136,50 +136,6 @@ plt.tight_layout()
 
 
 
-# # =============================================================================
-# # Plottings of raw data
-# # =============================================================================
-
-
-
-
-# # Define the style settings
-# figsize = (8.6/2.54, 8.6/2.54)  # figure size in inches
-# linewidth = 1  # line width for the plots
-# tick_labelsize = 5  # size of the ticks labels
-# label_fontsize = 5  # font size for the x and y labels
-# title_fontsize = 5  # font size for the titles
-# colors = ['blue', 'green']  # colors for the plots
-
-# # Create a figure with subplots
-# fig, (ax1, ax2) = plt.subplots(2, 1, figsize=figsize, dpi=200)
-
-# # First subplot for raw data
-# ax1.plot(t_grid_raw, E_air_in_raw, label='E_air_in_raw', linewidth=linewidth, color=colors[0])
-# ax1.plot(t_grid_raw, E_sample_out_raw, label='E_sample_out_raw', linewidth=linewidth, color=colors[1])
-# ax1.set_xlabel('Time (ps)', fontsize=label_fontsize)
-# ax1.set_ylabel('Electric Field', fontsize=label_fontsize)
-# ax1.tick_params(axis='both', labelsize=tick_labelsize)
-# ax1.legend(fontsize=label_fontsize)
-# ax1.set_title('Raw data', fontsize=title_fontsize)
-
-# # Second subplot for processed raw data
-# ax2.plot(time, E_air_in, label='E_air_in_processed', linewidth=linewidth, color=colors[0])
-# ax2.plot(time, E_sample_out, label='E_sample_out_processed', linewidth=linewidth, color=colors[1])
-# ax2.set_xlabel('Time (ps)', fontsize=label_fontsize)
-# ax2.set_ylabel('Electric Field', fontsize=label_fontsize)
-# ax2.tick_params(axis='both', labelsize=tick_labelsize)
-# ax2.legend(fontsize=label_fontsize)
-# ax2.set_title('Processed raw data', fontsize=title_fontsize)
-
-# # Adjust layout to prevent overlap
-# plt.tight_layout()
-
-# # Save the figure if needed
-# plt.savefig('processed_data_plots.png', dpi=300)
-
-# # Show the plot
-# plt.show()
 
 
 
