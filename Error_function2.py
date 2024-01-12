@@ -93,13 +93,7 @@ if __name__ == '__main__':
         
     
     
-    
-    # def Drude(self,plasma,damping):
-    #     eV2Hz  = 241.79893e12        # 1eV = 241.79893 THz
-    #     plas = plasma*eV2Hz*2*pi
-    #     damp = damping*eV2Hz*2*pi
-    #     epsilon = 1 - plas**2/(self.omega**2 + 1j*damp*self.omega)
-    #     return epsilon 
+
 
     
     '''inputs'''

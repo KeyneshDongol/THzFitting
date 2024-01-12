@@ -114,7 +114,7 @@ if __name__ == '__main__':
     
     def calculate_error(n, k):
         eps_Air = np.array([1] * len(omega))
-        index_n = np.array([n] * len(omega))
+        index_n = np.array([n] * len(omega))  
         index_k = np.array([k] * len(omega))
         epsS = (index_n + 1j * index_k) ** 2
         layers = [eps_Air * eps0, epsS * eps0, eps_Air * eps0, eps_Air * eps0, eps_Air * eps0, eps_Air * eps0]
@@ -130,8 +130,8 @@ if __name__ == '__main__':
         return error
     
     # Set up the ranges for n and k
-    n_values = np.linspace(0.01, 3.5, 50)  # 25 steps from 0 to 6 for refractive index
-    k_values = np.linspace(0, 0.05, 50)  # 25 steps from 0 to 1 for extinction coefficient
+    n_values = np.linspace(2, 6, 50)  #  steps from 0 to 6 for refractive index
+    k_values = np.linspace(0, 0.05, 50)  # steps from 0 to 1 for extinction coefficient
     
     # Prepare a grid for error values
     error_values = np.zeros((len(n_values), len(k_values)))

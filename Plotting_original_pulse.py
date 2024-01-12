@@ -71,12 +71,12 @@ freq = omega*1e-12/2*pi
 
 
 
-plt.figure('test')
-# plt.plot(freq,np.abs(E_air_f),label = 'aire')
-# plt.plot(freq,np.abs(E_exp_f),label = 'sample')
-plt.plot(freq,np.abs(T_exp_f1),label = 'Trans func1')
-# plt.plot(freq_o,np.abs(T_exp_f_o),label = 'Trans func_o')
-plt.legend()
+# plt.figure('test')
+# # plt.plot(freq,np.abs(E_air_f),label = 'aire')
+# # plt.plot(freq,np.abs(E_exp_f),label = 'sample')
+# plt.plot(freq,np.abs(T_exp_f1),label = 'Trans func1')
+# # plt.plot(freq_o,np.abs(T_exp_f_o),label = 'Trans func_o')
+# plt.legend()
 
 
 

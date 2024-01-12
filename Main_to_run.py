@@ -47,6 +47,9 @@ if __name__ == '__main__':
     t_grid, E_air_in, E_sample_out = exp_pulse.fitted_pulse(exp_in_pulse, exp_out_pulse, tmin, tmax, tpos, d, n) # data reading (propagated through air)
     omega, E_air_f = fourier.ft(t_grid, E_air_in)
     E_exp_f = fourier.ft(t_grid, E_sample_out)[1]
+    
+    
+    
 
     '''Inputing the permittivities'''
     layers = []
@@ -153,7 +156,7 @@ if __name__ == '__main__':
         result = res['x']
         print(f'After: error function =  {min_func(result)}')        
         ##==============yplotting permittivity ============         
-        drudePt = Material(omega).drude(5.145, 69.2e-3)
+        drudePt = Material(omega).drude(5.145,0.069)                         ###!!!!! Mission1: change a way that auto plot the input vlues
         drudePt_fit = Material(omega).drude(result[0], result[1])
      # Define global style settings
         fontsize = 5
@@ -276,11 +279,11 @@ if __name__ == '__main__':
     if to_find[2] == True:
         
         ##============== noise removing (pure data smoothing)============ 
-        result = np.array(np.array_split(res['x'], 2))         
-        fine_x,smoothed_data1,smoothed_data2,interpolated_data1,interpolated_data2,results = noise_remove(res, omega, window_size=31, prominence_threshold1=400,prominence_threshold2=100)
+        result = np.array(np.array_split(res['x'], 2))     # original raw data      
+        fine_x,smoothed_data1,smoothed_data2,interpolated_data1,interpolated_data2,results = noise_remove(res, omega, window_size=21, prominence_threshold1=5,prominence_threshold2=0.5)
         freq_new = fine_x*1e-12/2*3.1415926   #THz
         inter_new = np.array([smoothed_data1,smoothed_data2])
-        new_results = tools.save_nk('fitted_data_test.txt', freq,smoothed_data1,smoothed_data2)
+        new_results = tools.save_nk('fitted_data_quartz_B.txt', freq,smoothed_data1,smoothed_data2)
         # new_results = tools.save_nk('fitted_data_test.txt', freq,result[0],result[1])
         
         print(f'After: {min_func(np.hstack((result[0], result[1])))}')
@@ -417,7 +420,7 @@ if __name__ == '__main__':
         if not layer['is_known']:
             # Check if the first element of eps_data is a string
             if isinstance(layer['eps_data'][0], str):
-                layer['eps_data'] = ['fitted_data_test.txt', 'THz']
+                layer['eps_data'] = ['fitted_data_quartz_B.txt', 'THz']
             # Check if the first element of eps_data is a number (int or float)
             elif isinstance(layer['eps_data'][0], (int, float)):
                 layer['eps_data'] = [result[0],result[1]]

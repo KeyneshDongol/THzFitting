@@ -6,14 +6,14 @@
     },
     "input": {
         "pulse": [
-            "Sap500um_ref.txt",
-            "Sap500um_PtTe26nm_sample.txt"
+            "C_Quartz1mm_ref.txt",
+            "C_Quartz1mm_sample.txt"
         ]
     },
     "pulse_res": {
         "n": 120,
         "tmin": 0,
-        "tmax": 1.4e-11,
+        "tmax": 1.5e-11,
         "tpos": 0.0
     },
     "layers": [
@@ -21,34 +21,25 @@
             "thickness": 0,
             "eps_data": [
                 "air.txt",
-                "eV"
+                "THz"
             ],
             "is_substrate": false,
             "is_known": true
         },
         {
-            "thickness": 6e-09,
+            "thickness": 0.001,
             "eps_data": [
-                "fitted_data_test.txt",
-                "THz"
-            ],
-            "is_substrate": false,
-            "is_known": false
-        },
-        {
-            "thickness": 0.0005,
-            "eps_data": [
-                "fitted_data_test2.txt",
+                "fitted_data_quartz_C.txt",
                 "THz"
             ],
             "is_substrate": true,
-            "is_known": true
+            "is_known": false
         },
         {
             "thickness": 0,
             "eps_data": [
                 "air.txt",
-                "eV"
+                "THz"
             ],
             "is_substrate": false,
             "is_known": true
@@ -57,7 +48,7 @@
             "thickness": 0,
             "eps_data": [
                 "air.txt",
-                "eV"
+                "THz"
             ],
             "is_substrate": false,
             "is_known": true
@@ -66,7 +57,16 @@
             "thickness": 0,
             "eps_data": [
                 "air.txt",
-                "eV"
+                "THz"
+            ],
+            "is_substrate": false,
+            "is_known": true
+        },
+        {
+            "thickness": 0,
+            "eps_data": [
+                "air.txt",
+                "THz"
             ],
             "is_substrate": false,
             "is_known": true
