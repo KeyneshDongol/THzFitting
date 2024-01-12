@@ -48,8 +48,9 @@ def isolate_pulse(t_grid, e_amplitude, range_before, range_after):
 
 def find_start(t_grid, e_in, e_out):
 
-    diff_threshold = 0.0025
+    # diff_threshold = 0.0025
     
+    diff_threshold = max(e_in)*0.01
     start_idx = 0
     for i in range(len(e_in)):
         if e_in[i] > diff_threshold:
@@ -74,6 +75,7 @@ def fitted_pulse(path_in, path_out, tmin, tmax, tpos, d, n):
     t_0 = t_grid[0]
     t_in = [(t-t_0)*1e-12+tpos for t in t_grid]
     t_out = [(t-t_0)*1e-12+tpos+(np.sum(d)/2.99792458e8) for t in t_grid]            # add air propagation
+    # t_out = t_in
 
     t_in = np.array(t_in); t_out = np.array(t_out); e_in = np.array(e_in); e_out = np.array(e_out)
 

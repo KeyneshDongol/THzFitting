@@ -39,32 +39,46 @@ n, tmin, tmax, tpos = pulse_res.values()
 pulse_path = input_num[0]
 exp_in_pulse = Path.cwd()/'experimental_data'/pulse_path[0]  # current working directory
 exp_out_pulse = Path.cwd()/'experimental_data'/pulse_path[1] # current working directory
-t_grid, E_air_in= exp_pulse.read_pulse(exp_in_pulse) 
-_, E_sample_out= exp_pulse.read_pulse(exp_out_pulse) 
+
+t_grid, E_air_in= exp_pulse.read_pulse(exp_in_pulse) # reading the original pulse E_ref
+_, E_sample_out= exp_pulse.read_pulse(exp_out_pulse) # reanding the original pulse E_sample
+omega_o, E_air_f_o = fourier.ft(t_grid*1e-12, E_air_in)
+omega_o, E_sample_f_o = fourier.ft(t_grid*1e-12, E_sample_out)
+freq_o = omega_o*1e-12/2*pi
+
+
+
 t_grid_new, E_air_in_new, E_sample_out_new = exp_pulse.fitted_pulse(exp_in_pulse, exp_out_pulse, tmin, tmax, tpos, d, n) # data reading (propagated through air)
 omega, E_air_f = fourier.ft(t_grid_new, E_air_in_new)
 E_exp_f = fourier.ft(t_grid_new, E_sample_out_new)[1]
 
-
-# =============================================================================
-# cleaning data
-# =============================================================================
+'''Transfer function'''
+T_exp_f1 = E_exp_f/E_air_f
 
 
-
-# t_grid, E_air_in = exp_pulse.isolate_pulse(t_grid,E_air_in,100,100)
-# _,E_sample_out = exp_pulse.isolate_pulse(t_grid,E_sample_out,100,100)
+T_exp_f_o = E_sample_f_o/E_air_f_o
 
 
-# plt.figure('test')
-# plt.plot(t_grid,e_amplitude)
-# plt.plot(t_grid,e_amplitude2)
+
+
+
 
 
 # =============================================================================
 # Plottings of raw data
 # =============================================================================
 freq = omega*1e-12/2*pi
+
+
+
+plt.figure('test')
+# plt.plot(freq,np.abs(E_air_f),label = 'aire')
+# plt.plot(freq,np.abs(E_exp_f),label = 'sample')
+plt.plot(freq,np.abs(T_exp_f1),label = 'Trans func1')
+# plt.plot(freq_o,np.abs(T_exp_f_o),label = 'Trans func_o')
+plt.legend()
+
+
 
 
 # Convert time grid for plotting

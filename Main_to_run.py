@@ -277,10 +277,11 @@ if __name__ == '__main__':
         
         ##============== noise removing (pure data smoothing)============ 
         result = np.array(np.array_split(res['x'], 2))         
-        fine_x,smoothed_data1,smoothed_data2,interpolated_data1,interpolated_data2,results = noise_remove(res, omega, window_size=31, prominence_threshold1=5,prominence_threshold2=0.5)
+        fine_x,smoothed_data1,smoothed_data2,interpolated_data1,interpolated_data2,results = noise_remove(res, omega, window_size=31, prominence_threshold1=400,prominence_threshold2=100)
         freq_new = fine_x*1e-12/2*3.1415926   #THz
         inter_new = np.array([smoothed_data1,smoothed_data2])
-        new_results = tools.save_nk('fitted_data_test2.txt', freq_new,interpolated_data1,interpolated_data2)
+        new_results = tools.save_nk('fitted_data_test.txt', freq,smoothed_data1,smoothed_data2)
+        # new_results = tools.save_nk('fitted_data_test.txt', freq,result[0],result[1])
         
         print(f'After: {min_func(np.hstack((result[0], result[1])))}')
         
@@ -416,7 +417,7 @@ if __name__ == '__main__':
         if not layer['is_known']:
             # Check if the first element of eps_data is a string
             if isinstance(layer['eps_data'][0], str):
-                layer['eps_data'] = ['fitted_data_test2.txt', 'THz']
+                layer['eps_data'] = ['fitted_data_test.txt', 'THz']
             # Check if the first element of eps_data is a number (int or float)
             elif isinstance(layer['eps_data'][0], (int, float)):
                 layer['eps_data'] = [result[0],result[1]]

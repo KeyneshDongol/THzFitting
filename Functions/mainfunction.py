@@ -60,7 +60,30 @@ def E_TMM(layers, to_find, omega, eps0, mu, d, f_in,sub_layer, echoes_removed, u
     trans = fourier.ift(f_inf_R)    
     return trans, f_inf_R
 
+def E_TMM_new(layers, to_find, omega, eps0, mu, d, f_in,sub_layer, echoes_removed):  
+    epsilon = layers
 
+    '''Transfer matrix'''
+    TMM = SpecialMatrix(omega, mu, epsilon, d)
+    _, _, T_0inf = TMM.Transfer_Matrix()
+    T_0s  = TMM.Transfer_Matrix_special_0N(sub_layer)
+    T_sinf  = TMM.Transfer_Matrix_special_Ninf(sub_layer)
+
+    '''Tranmission & reflection coefficients'''
+    t_0s        = TMM.Transmission_coeff(T_0s)
+    t_sinf      = TMM.Transmission_coeff(T_sinf)
+    t           = TMM.Transmission_coeff(T_0inf)
+    t_noecho    = np.multiply(t_0s, t_sinf)
+
+    '''Remove echo or not'''    
+    if echoes_removed[0]==True:
+        f_inf_R      = f_in * t_noecho 
+    else:
+        f_inf_R      = f_in*t
+        
+    '''Transmitted wave in freq domain'''
+    trans = fourier.ift(f_inf_R)    
+    return trans, f_inf_R
 
 ''' error function without penalty term'''
 # def Error_func(layers, to_find, omega, eps0, mu, d, E_air_f, E_exp_f,sub_layer,echoes_removed, unknown):
@@ -88,13 +111,40 @@ def Error_func(layers, to_find, omega,eps0, mu, d, E_air_f, E_exp_f, sub_layer, 
 
     E_theo_f = E_TMM(layers, to_find, omega, eps0, mu, d, E_air_f, sub_layer, echoes_removed, unknown)[1]
     
-    log_diff = np.log(np.abs(E_theo_f)) - np.log(np.abs(E_exp_f))
-    phase_diff = np.angle(E_theo_f) - np.angle(E_exp_f)
+    # log_diff = np.log(np.abs(E_theo_f)) - np.log(np.abs(E_exp_f))
+    # phase_diff = np.angle(E_theo_f) - np.angle(E_exp_f)
 
-    result = np.sum(log_diff**2) #+ phase_diff**2)
+    # result = np.sum(log_diff**2) #+ phase_diff**2)
     
     return np.sum(np.abs(E_theo_f - E_exp_f)**2) #+ penalty
 
+
+
+''' error function with penalty term'''
+def Error_func2(layers, to_find, omega,eps0, mu, d, E_air_f, E_exp_f, sub_layer, echoes_removed, unknown):
+    if to_find[0] == True:
+        unknown = unknown[:len(unknown)//2] + 1j*unknown[len(unknown)//2:]
+    if to_find[2] == True:
+        unknown = np.array(np.array_split(unknown, 2))
+
+    # Additional penalty term to enforce positive unknown[1]
+    penalty = 0.0
+    if to_find[2] == True:
+        negative_k = np.where(unknown[1] < 0)[0]
+        if len(negative_k) > 0:
+            penalty = np.sum(np.exp(-unknown[1][negative_k]))
+
+    E_theo_f = E_TMM(layers, to_find, omega, eps0, mu, d, E_air_f, sub_layer, echoes_removed, unknown)[1]
+    
+    
+    '''Transfer function theory'''
+    eps_Air = np.array([1] * len(omega))
+    layers1 = [eps_Air * eps0, eps_Air * eps0, eps_Air * eps0, eps_Air * eps0, eps_Air * eps0, eps_Air * eps0]
+    E_air_theo_t, E_air_theo_f = E_TMM_new(layers1, to_find, omega, eps0, mu, d, E_air_f,sub_layer,echoes_removed)
+
+    T_theo_f = E_theo_f/E_air_theo_f
+    
+    return np.sum(np.abs(T_theo_f - E_exp_f)**2) #+ penalty
 
 '''result smoothing'''
 
@@ -125,8 +175,8 @@ def noise_remove(res, omega, window_size, prominence_threshold1, prominence_thre
     neg_peaks2 = find_all_peaks(-result[1], prominence_threshold2)
     
     # Remove both positive and negative peaks
-    result[0][pos_peaks1] = 2; result[0][neg_peaks1] = 2
-    result[1][pos_peaks2] = 0; result[1][neg_peaks2] = 0
+    result[0][pos_peaks1] = 100; result[0][neg_peaks1] = 50
+    result[1][pos_peaks2] = 100; result[1][neg_peaks2] = 50
     
     # Apply moving average smoothing to the modified data
     smoothed_data1 = moving_average(result[0], window_size)

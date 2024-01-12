@@ -7,14 +7,14 @@
     },
 
     "input": {
-        "pulse": ["air.txt", "quartz.txt"]
+        "pulse": ["Sap500um_ref.txt", "Sap500um_PtTe26nm_sample.txt"]
     },
 
     "pulse_res": {
-        "n": 200,
+        "n": 120,
         "tmin": 0,
-        "tmax": 27e-12,
-        "tpos": 0e-11
+        "tmax": 14e-12,
+        "tpos": 0e-12
     },
 
 
@@ -27,17 +27,17 @@
             "is_known": true
         },
         {
-            "thickness": 1e-3,
-            "eps_data": ["Al2O3.txt", "eV"],
-            "is_substrate": true,
+            "thickness": 6e-9,
+            "eps_data": ["test.txt", "THz"],
+            "is_substrate": false,
             "is_known": false
         },
         {
-            "thickness":0,
-            "eps_data": ["air.txt", "eV"],
-            "is_substrate": false,
+            "thickness":500e-6,
+            "eps_data": ["fitted_data_test2.txt", "THz"],
+            "is_substrate": true,
             "is_known": true
-        },
+        },   
         {
             "thickness": 0,
             "eps_data": ["air.txt", "eV"],

@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+Created on Thu Jan 11 15:15:50 2024
+
+@author: yingshuyang
+"""
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
 Created on Fri Dec 22 13:34:49 2023
 
 @author: yingshuyang
@@ -55,7 +63,43 @@ if __name__ == '__main__':
         trans = fourier.ift(f_inf_R)    
         return trans, f_inf_R
 
+    def LayerMaterial(path,unit):
+        main_folder = r'/Users/yingshuyang/pythonfiles/TransferMatrixMethod/A1_THz_nk_Fitting/material_data/'
+        dielectric_data = np.loadtxt(main_folder + path)
+        freq = []
+        nindex = []
+        kindex = []
+        for d in dielectric_data:
+            freq.append(d[0])
+            nindex.append(d[1])
+            kindex.append(d[2])
+        if unit == 'THz':
+            freq = np.array(freq)*1e12*6.28      # angular frequecy
+        if unit == 'eV': 
+            freq = np.array(freq)*2.42e14*6.28      # angular frequecy
+        nindex = np.array(nindex)
+        kindex = np.array(kindex)
+        eps = nindex**2 - kindex**2 + 2j*nindex*kindex
+        espline = interp1d(freq,eps)
+        return espline 
 
+
+    
+    
+    def epsilon(path,unit,omega):
+        spline = LayerMaterial(path,unit)
+        eps = spline(omega)
+        return eps
+        
+    
+    
+    
+    # def Drude(self,plasma,damping):
+    #     eV2Hz  = 241.79893e12        # 1eV = 241.79893 THz
+    #     plas = plasma*eV2Hz*2*pi
+    #     damp = damping*eV2Hz*2*pi
+    #     epsilon = 1 - plas**2/(self.omega**2 + 1j*damp*self.omega)
+    #     return epsilon 
 
     
     '''inputs'''
@@ -94,44 +138,31 @@ if __name__ == '__main__':
     omega, E_air_exp_f = fourier.ft(t_grid, E_air_in)
     _, E_sample_exp_f = fourier.ft(t_grid, E_sample_out)  
 
+    
 
-    '''Transfer function measured'''
-    TF_exp = E_sample_exp_f/E_air_f
-    
-    '''Transfer function theory'''
-    eps_Air = np.array([1] * len(omega))
-    layers1 = [eps_Air * eps0, eps_Air * eps0, eps_Air * eps0, eps_Air * eps0, eps_Air * eps0, eps_Air * eps0]
-    E_air_theo_t, E_air_theo_f = E_TMM_new(layers1, to_find, omega, eps0, mu, d, E_air_f,sub_layer,echoes_removed)
-    
-    
-    
-    
-    
-    plt.figure('test')
-    plt.plot(t_grid,E_air_in)
-    plt.plot(t_grid,E_air_theo_t)
 
     
     def calculate_error(n, k):
         eps_Air = np.array([1] * len(omega))
         index_n = np.array([n] * len(omega))
         index_k = np.array([k] * len(omega))
-        epsS = (index_n + 1j * index_k) ** 2
-        layers = [eps_Air * eps0, epsS * eps0, eps_Air * eps0, eps_Air * eps0, eps_Air * eps0, eps_Air * eps0]
+        epsX = (index_n + 1j * index_k) ** 2
+        
+        epsS = epsilon('fitted_data_test2.txt','THz',omega)
+        
+        layers = [eps_Air * eps0, epsX * eps0, epsS * eps0, eps_Air * eps0, eps_Air * eps0, eps_Air * eps0]
     
         # Replace with actual E_TMM_new function call
         E_sample_theo_t, E_sample_theo_f = E_TMM_new(layers, to_find, omega, eps0, mu, d, E_air_f,sub_layer,echoes_removed)
 
-        TF_exp = E_sample_exp_f/E_air_exp_f
-        TF_theo = E_sample_theo_f/E_air_theo_f
+
 
         error = np.sum(np.abs(E_sample_theo_f-E_sample_exp_f)**2)
-        # error = np.sum(np.abs(TF_theo-TF_exp)**2)
         return error
     
     # Set up the ranges for n and k
-    n_values = np.linspace(0.01, 3.5, 50)  # 25 steps from 0 to 6 for refractive index
-    k_values = np.linspace(0, 0.05, 50)  # 25 steps from 0 to 1 for extinction coefficient
+    n_values = np.linspace(0.1, 500, 200)  # 25 steps from 0 to 6 for refractive index
+    k_values = np.linspace(0, 600, 200)  # 25 steps from 0 to 1 for extinction coefficient
     
     # Prepare a grid for error values
     error_values = np.zeros((len(n_values), len(k_values)))
