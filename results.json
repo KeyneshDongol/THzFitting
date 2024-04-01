@@ -29,7 +29,7 @@
         {
             "thickness": 0.001,
             "eps_data": [
-                "fitted_data_quartz_C.txt",
+                "fitted_data_quartz_B.txt",
                 "THz"
             ],
             "is_substrate": true,

@@ -8,6 +8,7 @@ class Material(object):
         self.omega = omega
 
     def read_nk(self, path, unit):
+        # global freq, nindex, kindex
         nk_data = np.loadtxt(Path.cwd()/'material_data'/path)
         freq = nk_data[:,0]
         nindex = nk_data[:,1]
@@ -16,7 +17,7 @@ class Material(object):
             freq = np.array(freq)*1e12*6.28              # angular frequency
         elif unit == 'eV':
             freq = np.array(freq)*2.42e14*6.28           # angular frequency
-        f = interp1d(freq, nindex)
+        f = interp1d(freq, nindex) #<scipy.interpolate._interpolate.interp1d>
         h = interp1d(freq, kindex)
         new_n = f(self.omega)
         new_k = h(self.omega)
@@ -48,4 +49,3 @@ class Material(object):
         espline = interp1d(freq, eps)
         eps = espline(self.omega)
         return eps
-
