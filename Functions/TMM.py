@@ -187,6 +187,35 @@ class SpecialMatrix(object):
 
     @staticmethod
     def E_TMM_new(layers: list, to_find: list[bool], omega:object, eps0: float, mu: float, d: list[object], f_in: NDArray, sub_layer: object, echoes_removed: list[object]) -> tuple[NDArray[np.floating[Any]], Any]:
+        """_summary_
+
+        Parameters
+        ----------
+        layers : list
+            _description_
+        to_find : list[bool]
+            _description_
+        omega : object
+            _description_
+        eps0 : float
+            _description_
+        mu : float
+            _description_
+        d : list[object]
+            _description_
+        f_in : NDArray
+            _description_
+        sub_layer : object
+            _description_
+        echoes_removed : list[object]
+            _description_
+
+        Returns
+        -------
+        tuple[NDArray[np.floating[Any]], Any]
+            _description_
+        """
+        
         epsilon = layers
 
         '''Transfer matrix'''

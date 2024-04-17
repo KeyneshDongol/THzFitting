@@ -5,10 +5,13 @@ from scipy.interpolate import interp1d
 
 from scipy.signal import find_peaks, savgol_filter
 
+import os
+
 def read_pulse(path):
-    t_grid = []
-    e_t = []
+    t_grid = [] #initializes an empty list
+    e_t = []    #initializes an empty list 
     with open(path) as f:
+        print(os.getcwd())
         for line in f:
             data = line.split()
             t_grid.append(float(data[0]))

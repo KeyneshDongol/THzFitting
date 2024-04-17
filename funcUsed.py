@@ -15,11 +15,8 @@ from Functions.mainfunction import E_TMM, Error_func,  noise_remove
 from setup_attributes import Attributes
 
 if __name__ == '__main__':
-    # input = 'inputs.
-    f = open(Path.cwd()/'inputs.json')  #Text_IO_Wrapper
 
+    attributes = Attributes('inputs.json')
 
-    attributes = Attributes(f)
-
-    # print(attributes.layers)
+    print(attributes.layers)
             

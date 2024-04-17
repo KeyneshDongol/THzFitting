@@ -6,6 +6,7 @@ Created on Wed Nov  8 13:50:02 2023
 @author: yingshuyang
 """
 
+from typing_extensions import Any
 import numpy as np
 from scipy.signal import find_peaks
 from scipy.interpolate import interp1d
@@ -51,7 +52,7 @@ def E_TMM(layers, to_find, omega, eps0, mu, d, f_in,sub_layer, echoes_removed, u
     return trans, f_inf_R
 
 @staticmethod
-def E_TMM_new(layers: list, to_find: list[bool], omega:object, eps0: float, mu: float, d: list[object], f_in: NDArray, sub_layer: object, echoes_removed: list[object]) -> tuple[NDArray[np.floating[Any]], Any]:
+def E_TMM_new(layers: list, to_find: list[bool], omega:object, eps0: float, mu: float, d: list[object], f_in: list, sub_layer: object, echoes_removed: list[object]) -> tuple[list[np.floating[Any]], Any]:
     """_summary_
 
     Parameters

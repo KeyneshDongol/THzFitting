@@ -6,12 +6,12 @@ import json
 import time
 from math import pi
 from matplotlib.gridspec import GridSpec
-from Error_function import E_TMM_new
+from Error_function import E_TMM_new_, calculate_error
 from Functions.Read_material import Material
 from Functions import exp_pulse, fourier, tools
 from scipy.optimize import minimize
 from Functions.mainfunction import E_TMM, Error_func,  noise_remove
-from toIntroduce import E_AirInOriginal
+# from toIntroduce import E_AirInOriginal
 # from Plotting_original_pulse import echoes_removed
 
 if __name__ == '__main__':
@@ -50,11 +50,11 @@ if __name__ == '__main__':
     omega, E_air_exp_f = fourier.ft(t_grid, E_air_in)
     t_grid_variable, E_SampleExpFourier = fourier.ft(t_grid, E_sample_out)
 
-    TransferFuncExp = E_sample_exp_f/E_air_f
+    TransferFuncExp = E_SampleExpFourier/E_air_f
 
     epsAir = np.array([1] * len(omega))
     layers1 = [epsAir * eps0, epsAir * eps0, epsAir * eps0, epsAir * eps0, epsAir * eps0, epsAir * eps0]
-    E_air_theo_t, E_air_theo_f = E_TMM_new(layers1, to_find, omega, eps0, mu, d, E_air_f, sub_layer, echoes_removed)
+    E_air_theo_t, E_air_theo_f = E_TMM_new_(layers1, to_find, omega, eps0, mu, d, E_air_f, sub_layer, echoes_removed)
 
     #set up the rangesfor n and k
     nValues = np.linspace(2, 6, 50)  #  steps from 0 to 6 for refractive index

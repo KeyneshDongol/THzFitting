@@ -37,7 +37,7 @@ class Echoes:
         self.Removed = Removed
 
 class ExperimentalData:
-    def __init__(self, config, base_path='experimental_path'):
+    def __init__(self, config, base_path='experimental_data'):
         self.config = config
         self.base_path = Path.cwd() / base_path
         pulse_res = config.get('pulse_res', {})
