@@ -20,32 +20,30 @@ from matplotlib import cm
 
 
 
+def E_TMM_new_(layers: list, toFind: list[bool], omega: object, exp: float, _mu: float, _d: list[object], fourierIn: list, subLayer: object, echoesRemoved: bool):
+    epsilon = layers
 
-def E_TMM_new_(layers: list, toFind: list[bool], omega: object, exp: float, _mu: float, _d: list[object], fourierIn: list, subLayer: object, echoesRemoved: list[object]):# -> tuple[NDArray[np.floating[Any]], Any]:
-        epsilon = layers
+    # Transfer Matrix
+    TMM = SpecialMatrix(omega, _mu, epsilon, _d)
+    foo_, foo_, T_0inf = TMM.Transfer_Matrix()
+    T_0s = TMM.Transfer_Matrix_special_0N(subLayer)
+    T_sinFourier = TMM.Transfer_Matrix_special_Ninf(subLayer)
 
-        # Transfer Matrix
-        TMM = SpecialMatrix(omega, _mu, epsilon, _d)
-        foo_,foo_,T_0inf = TMM.Transfer_Matrix()
-        T_0s = TMM.Transfer_Matrix_special_0N(subLayer)
-        T_sinFourier = TMM.Transfer_Matrix_special_Ninf(subLayer)
+    # Transmission & Reflection Coefficients
+    t_0s = TMM.Transmission_coeff(T_0s)
+    t_sinFourier = TMM.Transmission_coeff(T_sinFourier)
+    t = TMM.Transmission_coeff(T_0inf)
+    t_noEcho = np.multiply(t_0s, t_sinFourier)
 
-        # Transmission & Reflection Coefficients
-        t_0s = TMM.Transmission_coeff(T_0s)
-        t_sinFourier = TMM.Transmission_coeff(T_sinFourier)
-        t = TMM.Transmission_coeff(T_0inf)
-        t_noEcho = np.multiply(t_0s, t_sinFourier)
+    # Remove Echo
+    if echoesRemoved:
+        f_inFourierR = fourierIn * t_noEcho
+    else:
+        f_inFourierR = fourierIn * t
 
-        # Remove Echo
-        echoesRemoved = list(echoesRemoved)
-        if echoesRemoved[0] == True:
-            f_inFourierR = fourierIn * t_noEcho
-        else:
-            f_inFourierR = fourierIn * t
-
-        # Transmitted wave in k-space
-        transmitted = fourier.ift(f_inFourierR)
-        return transmitted, f_inFourierR
+    # Transmitted wave in k-space
+    transmitted = fourier.ift(f_inFourierR)
+    return transmitted, f_inFourierR
 
 
 

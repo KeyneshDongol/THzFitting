@@ -28,7 +28,7 @@
         },
         {
             "thickness": 1e-3,
-            "eps_data": ["Quartz_initial.txt", "THz"],
+            "eps_data": ["Quartz_initial.txt", "THz"], 
             "is_substrate": true,
             "is_known": false
         },
@@ -56,6 +56,7 @@
             "is_substrate": false,
             "is_known": true
         }
+
 
     ],
     

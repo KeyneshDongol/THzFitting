@@ -50,6 +50,7 @@ if __name__ == '__main__':
     omega, E_air_exp_f = fourier.ft(t_grid, E_air_in)
     t_grid_variable, E_SampleExpFourier = fourier.ft(t_grid, E_sample_out)
 
+
     TransferFuncExp = E_SampleExpFourier/E_air_f
 
     epsAir = np.array([1] * len(omega))
@@ -57,8 +58,8 @@ if __name__ == '__main__':
     E_air_theo_t, E_air_theo_f = E_TMM_new_(layers1, to_find, omega, eps0, mu, d, E_air_f, sub_layer, echoes_removed)
 
     #set up the rangesfor n and k
-    nValues = np.linspace(2, 6, 50)  #  steps from 0 to 6 for refractive index
-    kValues = np.linspace(0, 0.05, 50)  # steps from 0 to 1 for extinction coefficient
+    nValues = np.linspace(2, 6, 50)  #  TODO: Introduce a way to keep the 2-6 variable dynamic.
+    kValues = np.linspace(0, 0.05, 50)  # TODO: Same for kValues x-y axis values
 
     errorValues = np.zeros((len(nValues), len(kValues)))
 
@@ -67,7 +68,10 @@ if __name__ == '__main__':
             errorValues[i,j] = calculate_error(n,k)
 
     # print(errorValues)
-
+    
+    '''
+    Error funciton values will replace eps_data in inputs.json file. 
+    '''
 
 
     '''Inputing the permittivities'''
@@ -91,7 +95,9 @@ if __name__ == '__main__':
             if to_find[1] == True:     # plasma and damping
                 unknown = np.array(j)
             if to_find[2] == True:     # n and k
-                unknown = Material(omega).read_nk(j[0], j[1])  #TODO: What happens if we have 2 trues?
+                unknown = Material(omega).read_nk(j[0], j[1])  
+                
+            #TODO: save the above new list titlted layer as unknown_initiL.txt file
 
 
     '''Theoretical calculated transmitted pulse '''
@@ -119,7 +125,7 @@ if __name__ == '__main__':
     else:
         bounds = None
     start = time.time()
-    res = minimize(min_func, new_unknown, method='nelder-mead', bounds = bounds,  options= {'disp' : True, 'adaptive': True, 'maxiter': 100000, 'maxfev': 100000})
+    res = minimize(min_func, new_unknown, method='L-BFGS-B', bounds = bounds,  options= {'disp' : True, 'adaptive': True, 'maxiter': 200000, 'maxfev': 200000})
 
     end = time.time()
 
